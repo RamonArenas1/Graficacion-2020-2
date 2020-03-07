@@ -1,0 +1,1 @@
+Es necesario correr los archivos en un servidor, puede ser local con node.js o HTTPResponse
