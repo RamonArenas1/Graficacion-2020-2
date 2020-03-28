@@ -377,11 +377,12 @@ export default class Matrix4 {
      * @return {Matrix4}
      */
     static ortho(left, right, bottom, top, near, far) {
-        let m = new Matrix4((2 / right - left), 0, 0, 0,
-            0, (2 / top - bottom), 0, 0,
-            0, 0, (2 / near - far), 0,
-            (-1) * ((right + left) / (rigth - left)), (-1) * ((top + bottom) / (top - bottom)), (-1) * ((near + far) / (near - far)), 1);
-        return m.transpose();
+        let m = new Matrix4(
+            (2 / (right - left)), 0, 0, (-1) * ((right + left) / (right - left)),
+            0, (2 / (top - bottom)), 0, (-1) * ((top + bottom) / (top - bottom)),
+            0, 0, (2 / (near - far)), (-1) * ((near + far) / (near - far)),
+            0, 0, 0, 1);
+        return m;
     }
 
     /**
