@@ -148,4 +148,8 @@ export default class Vector4 {
     cardinal(a) {
         return new Vector4(a * this.x, a * this.y, a * this.z, a * this.w);
     }
+
+    divide(){
+        return this.cardinal(1/this.w);
+    }
 }

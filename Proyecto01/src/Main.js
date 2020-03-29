@@ -1,3 +1,8 @@
+import Vector3 from "/maths_CG/Vector3.js";
+import Vector4 from "/maths_CG/Vector4.js";
+import Matrix3 from "/maths_CG/Matrix3.js";
+import Matrix4 from "/maths_CG/Matrix4.js";
+
 window.addEventListener("load", function(evt) {
   let canvas = document.getElementById("the_canvas");
   let context = canvas.getContext("2d");
@@ -6,9 +11,9 @@ window.addEventListener("load", function(evt) {
   * Cámara por default inicializada en (0,3,3), punto de interes en el origen
   * y un ángulo de apertura de 60°
   */
-  let camera = new CG.Vector3(0,3,3);
-  let coi = new CG.Vector3(0,0,0); // center of interest
-  let up = new CG.Vector3(0,1,0);
+  let camera = new Vector3(0,3,3);
+  let coi = new Vector3(0,0,0); // center of interest
+  let up = new Vector3(0,1,0);
   let angle = 60*Math.PI/180;
 
   let vertex;
@@ -27,7 +32,7 @@ window.addEventListener("load", function(evt) {
   * @return{Vector4}
   */
   function viewTransform(vertex) {
-    let m = CG.Matrix4.lookAt(camera,coi,up);
+    let m = Matrix4.lookAt(camera,coi,up);
     return m.multiplyVector(vertex);
   }
 
@@ -42,7 +47,7 @@ window.addEventListener("load", function(evt) {
   * @return{Vector4}
   */
   function perspective(fov, aspect, near, far, v) {
-    let m = CG.Matrix4.perspective(fov,aspect,near,far);
+    let m = Matrix4.perspective(fov,aspect,near,far);
     return m.multiplyVector(v).divide();
   }
 
@@ -55,7 +60,7 @@ window.addEventListener("load", function(evt) {
   * @return{Vector4}
   */
   function imagenTransform(w, h, v) {
-    return new CG.Vector4(
+    return new Vector4(
       v.x*w/2 + w/2,
       -v.y*h/2 + h/2,
       v.z,
@@ -101,6 +106,11 @@ window.addEventListener("load", function(evt) {
   var yc = document.getElementById("cameraY");
   var zc = document.getElementById("cameraZ");
 
+  // Variables para referenciar los inputs para cambiar las coordenadas de la cámara
+  var xcoi = document.getElementById("coiX");
+  var ycoi = document.getElementById("coiY");
+  var zcoi = document.getElementById("coiZ");
+
   // Se define que hacer al haber un cambió en las coordenadas de la cámara.
   xc.addEventListener("input",function(evt){
     camera.set(this.value,camera.y,camera.z);
@@ -112,6 +122,20 @@ window.addEventListener("load", function(evt) {
   });
   zc.addEventListener("input",function(evt){
     camera.set(camera.x,camera.y,this.value);
+    draw();
+  });
+
+  // Se define que hacer al haber un cambió en las coordenadas de la cámara.
+  xcoi.addEventListener("input",function(evt){
+    coi.set(this.value,coi.y,coi.z);
+    draw();
+  });
+  ycoi.addEventListener("input",function(evt){
+    coi.set(coi.x,this.value,coi.z);
+    draw();
+  });
+  zcoi.addEventListener("input",function(evt){
+    coi.set(coi.x,coi.y,this.value);
     draw();
   });
 
@@ -159,9 +183,9 @@ window.addEventListener("load", function(evt) {
   * @param{String} linea
   */
   function procesar(linea){
-    s_linea = linea.split(' ');
+    let s_linea = linea.split(' ');
     if(s_linea[0] == "v"){
-      let vertex = new CG.Vector4(parseFloat(s_linea[1]),parseFloat(s_linea[2]),parseFloat(s_linea[3]),1);
+      let vertex = new Vector4(parseFloat(s_linea[1]),parseFloat(s_linea[2]),parseFloat(s_linea[3]),1);
       vertices.push(vertex);
     }else if (s_linea[0] == "f"){
       let face = [parseFloat(s_linea[1].split('//')[0])-1,parseFloat(s_linea[2].split('//')[0])-1,parseFloat(s_linea[3].split('//')[0])-1];
