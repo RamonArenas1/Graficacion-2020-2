@@ -32,13 +32,7 @@ export default class Vector3 {
      * @return {Vector3}
      */
     static cross(u, v) {
-<<<<<<< HEAD:Proyecto1/src/Vector3.js
-        return new Vector3((u.y * v.z - u.z * v.y), 
-                          -(u.x * v.z - u.z * v.x), 
-                           (u.x * v.y - u.y * v.x));
-=======
         return new Vector3(((u.y * v.z) - (u.z * v.y)), (-((u.x * v.z) - (u.z * v.x))), ((u.x * v.y) - (u.y * v.x)));
->>>>>>> 70d603220dcdc77021889e7228cd76bc3867ae04:Proyecto1/src/P3/Class/Vector3.js
     }
 
     /**
