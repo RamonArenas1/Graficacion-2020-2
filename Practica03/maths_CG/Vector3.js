@@ -32,7 +32,9 @@ export default class Vector3 {
      * @return {Vector3}
      */
     static cross(u, v) {
-        return new Vector3((u.y * v.z - u.z * v.y), -(u.x * v.z - u.z * v.x), (u.x * v.y - u.y - v.x));
+        return new Vector3((u.y * v.z - u.z * v.y), 
+                          -(u.x * v.z - u.z * v.x), 
+                           (u.x * v.y - u.y * v.x));
     }
 
     /**

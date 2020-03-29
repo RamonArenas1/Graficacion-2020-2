@@ -80,7 +80,7 @@ export default class Vector4 {
      * @return {Vector4}
      */
     normalize() {
-        return this.cardinal(1 / this.length());
+        return this.scalar(1 / this.length());
     }
 
     /**
@@ -145,7 +145,11 @@ export default class Vector4 {
      * @param {Number} a
      * @return {Vector4}
      */
-    cardinal(a) {
+    scalar(a) {
         return new Vector4(a * this.x, a * this.y, a * this.z, a * this.w);
+    }
+
+    divide(){
+        return this.scalar(1/this.w);
     }
 }

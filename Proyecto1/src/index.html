@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <title>Visualizador de objetos</title>
+  <link rel="stylesheet" href="style.css" type="text/css">
+  
+  <script type="module" src="Main.js"></script>
+</head>
+
+<body>
+  <p>
+  Selecciona el archivo a visualizar <input type=file accept=.obj id = "selector" />
+  </p>
+  <canvas id="the_canvas" width="640" height="480" ></canvas>
+  <p>
+  Posición de la cámara<br>
+  X: <input type=number id = "cameraX" placeholder=0 /> Y: <input type=number id = "cameraY" placeholder=3 /> Z: <input type=number id = "cameraZ" placeholder=3 />
+  </p>
+  <p>
+  Posición del centro de interés<br>
+  X: <input type=number id = "coiX" placeholder=0 /> Y: <input type=number id = "coiY" placeholder=0 /> Z: <input type=number id = "coiZ" placeholder=0 />
+  </p>
+</body>
+
+</html>

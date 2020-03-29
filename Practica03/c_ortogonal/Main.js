@@ -1,8 +1,7 @@
 // Se importan las clases a utilizar
-import Vector3 from "./Vector3.js";
-import Vector4 from "./Vector4.js";
-import Matrix4 from "./Matrix4.js";
-
+import Vector3 from "/maths_CG/Vector3.js";
+import Vector4 from "/maths_CG/Vector4.js";
+import Matrix4 from "/maths_CG/Matrix4.js";
 
 window.addEventListener("load", function(evt) {
   let canvas = document.getElementById("the_canvas");
@@ -37,8 +36,10 @@ window.addEventListener("load", function(evt) {
   // se crea una matriz de cámara (o vista)
   let viewMatrix = Matrix4.lookAt(camera, coi, new Vector3(0, 1, 0));
   
-  // se crea una matriz de proyección de perspectiva con un campo de visión (fov) de 75 grados, una distancia cercana de 0.1 y una lejana de 2000 (unidades)
-  let projectionMatrix = Matrix4.perspective(75*Math.PI/180, canvas.width/canvas.height, 0.1, 2000);
+  // se crea una matriz de proyección ortogonal con el plano izquierdo en -4 el derecho en 4
+  // el plano abajo en -3, el plano arriba en en 3
+  // el plano cercano en 0.1 y el lejano en 2000
+  let projectionMatrix = Matrix4.ortho(-4, 4, -3, 3, 0.1, 2000);
 
   // se crea una matrix que conjunta las transformaciones de la cámara y de la proyección
   // hay que recordar que primero se realiza la transformación de la cámara y luego la de la perspectiva
