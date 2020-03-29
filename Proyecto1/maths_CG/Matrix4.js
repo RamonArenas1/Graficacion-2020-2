@@ -8,7 +8,7 @@ import Vector3 from "./Vector3.js";
 import Matrix3 from "./Matrix3.js";
 
 export default class Matrix4 {
-    constructor(a00 = 1, a01 = 0, a02 = 0, a03 = 0, a10 = 0, a11 = 1, a12 = 0, a13 = 0, a20 = 0, a21 = 0, a22 = 1, a23 = 0, a30 = 0, a31 = 0, a32 = 0, a33 = 1) {
+    constructor(a00 = 1, a01 = 0, a02 = 0, a03 = 0, a10 = 0, a11 = 1, a12 = 0, a13 = 0, a20 = 0, a21 = 0, a22 = 1, a23 = 0, a30 = 1, a31 = 0, a32 = 0, a33 = 0) {
         this.a00 = arguments[0];
         this.a01 = arguments[1];
         this.a02 = arguments[2];
@@ -121,8 +121,7 @@ export default class Matrix4 {
      * @return {Matrix4}
      */
     static multiply(m1, m2) {
-        let m = new Matrix4(m1.a00 * m2.a00 + m1.a01 * m2.a10 + m1.a02 * m2.a20 + m1.a03 * m2.a30, m1.a00 * m2.a01 + m1.a01 * m2.a11 + m1.a02 * m2.a21 + m1.a03 * m2.a31, m1.a00 * m2.a02 + m1.a01 * m2.a12 + m1.a02 * m2.a22 + m1.a03 * m2.a32, m1.a00 * m2.a03 + m1.a01 * m2.a13 + m1.a02 * m2.a23 + m1.a03 * m2.a33, m1.a10 * m2.a00 + m1.a11 * m2.a10 + m1.a12 * m2.a20 + m1.a13 * m2.a30, m1.a10 * m2.a01 + m1.a11 * m2.a11 + m1.a12 * m2.a21 + m1.a13 * m2.a31, m1.a10 * m2.a02 + m1.a11 * m2.a12 + m1.a12 * m2.a22 + m1.a13 * m2.a32, m1.a10 * m2.a03 + m1.a11 * m2.a13 + m1.a12 * m2.a23 + m1.a13 * m2.a33, m1.a20 * m2.a00 + m1.a21 * m2.a10 + m1.a22 * m2.a20 + m1.a23 * m2.a30, m1.a20 * m2.a01 + m1.a21 * m2.a11 + m1.a22 * m2.a21 + m1.a23 * m2.a31, m1.a20 * m2.a02 + m1.a21 * m2.a12 + m1.a22 * m2.a22 + m1.a23 * m2.a32, m1.a20 * m2.a03 + m1.a21 * m2.a13 + m1.a22 * m2.a23 + m1.a23 * m2.a33, m1.a30 * m2.a00 + m1.a31 * m2.a10 + m1.a32 * m2.a20 + m1.a33 * m2.a30, m1.a30 * m2.a01 + m1.a31 * m2.a11 + m1.a32 * m2.a21 + m1.a33 * m2.a31, m1.a30 * m2.a02 + m1.a31 * m2.a12 + m1.a32 * m2.a22 + m1.a33 * m2.a32, m1.a30 * m2.a03 + m1.a31 * m2.a13 + m1.a32 * m2.a23 + m1.a33 * m2.a33);
-        return m;
+        return new Matrix4 (m1.a00*m2.a00 + m1.a01*m2.a10 + m1.a02*m2.a20 + m1.a03*m2.a30 , m1.a00*m2.a01 + m1.a01*m2.a11 + m1.a02*m2.a21 + m1.a03*m2.a31 , m1.a00*m2.a02 + m1.a01*m2.a12 + m1.a02*m2.a22 + m1.a03*m2.a32 , m1.a00*m2.a03 + m1.a01*m2.a13 + m1.a02*m2.a23 + m1.a03*m2.a33 , m1.a10*m2.a00 + m1.a11*m2.a10 + m1.a12*m2.a20 +  m1.a13*m2.a30 , m1.a10*m2.a01 + m1.a11*m2.a11 + m1.a12*m2.a21 + m1.a13*m2.a31 , m1.a10*m2.a02 + m1.a11*m2.a12 + m1.a12*m2.a22 + m1.a13*m2.a32 , m1.a10*m2.a03 + m1.a11*m2.a13 + m1.a12*m2.a23 + m1.a13*m2.a33 , m1.a20*m2.a00 + m1.a21*m2.a10 + m1.a22*m2.a20 + m1.a23*m2.a30 , m1.a20*m2.a01 + m1.a21*m2.a11 + m1.a22*m2.a21 + m1.a23*m2.a31 , m1.a20*m2.a02 + m1.a21*m2.a12 + m1.a22*m2.a22 + m1.a23*m2.a32 , m1.a20*m2.a03 + m1.a21*m2.a13 + m1.a22*m2.a23 + m1.a23*m2.a33 , m1.a30*m2.a00 + m1.a31*m2.a10 + m1.a32*m2.a20 + m1.a33*m2.a30 , m1.a30*m2.a01 + m1.a31*m2.a11 + m1.a32*m2.a21 + m1.a33*m2.a31 , m1.a30*m2.a02 + m1.a31*m2.a12 + m1.a32*m2.a22 + m1.a33*m2.a32 , m1.a30*m2.a03 + m1.a31*m2.a13 + m1.a32*m2.a23 + m1.a33*m2.a33);    
     }
 
     /**
@@ -133,11 +132,10 @@ export default class Matrix4 {
      * @return {Matrix4}
      */
     static multiplyScalar(m1, c) {
-        return new Matrix4(
-            c * m1.a00, c * m1.a01, c * m1.a02, c * m1.a03,
-            c * m1.a10, c * m1.a11, c * m1.a12, c * m1.a13,
-            c * m1.a20, c * m1.a21, c * m1.a22, c * m1.a23,
-            c * m1.a30, c * m1.a31, c * m1.a32, c * m1.a33);
+        return new Matrix4(c * m1.a00, c * m1.a01, c * m1.a02, c * m1.a03, 
+                           c * m1.a10, c * m1.a11, c * m1.a12, c * m1.a13, 
+                           c * m1.a20, c * m1.a21, c * m1.a22, c * m1.a23, 
+                           c * m1.a30, c * m1.a31, c * m1.a32, c * m1.a33);
     }
 
     /**
@@ -147,10 +145,13 @@ export default class Matrix4 {
      * @return {Vector4}
      */
     multiplyVector(v) {
-        return new Vector4((v.x * this.a00) + (v.y * this.a01) + (v.z * this.a02) + (v.w * this.a03), (v.x * this.a10) + (v.y * this.a11) + (v.z * this.a12) + (v.w * this.a13), (v.x * this.a20) + (v.y * this.a21) + (v.z * this.a22) + (v.w * this.a23), (v.x * this.a30) + (v.y * this.a31) + (v.z * this.a32) + (v.w * this.a33));
+        return new Vector4 ( (v.x * this.a00) + (v.y * this.a01) + (v.z * this.a02) + (v.w * this.a03)
+                           , (v.x * this.a10) + (v.y * this.a11) + (v.z * this.a12) + (v.w * this.a13)
+                           , (v.x * this.a20) + (v.y * this.a21) + (v.z * this.a22) + (v.w * this.a23)
+                           , (v.x * this.a30) + (v.y * this.a31) + (v.z * this.a32) + (v.w * this.a33) );
     }
 
-    /**
+     /**
      * Función subtract, dado dos matricez nos regresa la matriz resultante de substraer
      * la segunda matriz de la primera.
      * @param {Matrix4} m1
@@ -242,10 +243,10 @@ export default class Matrix4 {
      */
     static rotateX(theta) {
         let g = Math.PI / 180;
-        let m = new Matrix4(1, 0, 0, 0,
-            0, Math.cos(theta * g), Math.sin(theta * g) * (-1), 0,
-            0, Math.sin(theta * g), Math.cos(theta * g), 0,
-            0, 0, 0, 1);
+        let m = new Matrix4(1, 0,                   0,                          0,
+                            0, Math.cos(theta * g), Math.sin(theta * g) * (-1), 0,
+                            0, Math.sin(theta * g), Math.cos(theta * g),        0,
+                            0, 0,                   0,                          1);
         return m.transpose();
     }
 
@@ -257,10 +258,10 @@ export default class Matrix4 {
      */
     static rotateY(theta) {
         let g = Math.PI / 180;
-        let m = new Matrix4(Math.cos(theta * g), 0, Math.sin(theta * g), 0,
-            0, 1, 0, 0,
-            Math.sin(theta * g) * (-1), 0, Math.cos(theta * g), 0,
-            0, 0, 0, 1);
+        let m = new Matrix4(Math.cos(theta * g),        0, Math.sin(theta * g), 0,
+                            0,                          1, 0,                   0,
+                            Math.sin(theta * g) * (-1), 0, Math.cos(theta * g), 0,
+                            0,                          0, 0,                   1);
         return m.transpose();
     }
 
@@ -272,10 +273,10 @@ export default class Matrix4 {
      */
     static rotateZ(theta) {
         let g = Math.PI / 180;
-        let m = new Matrix4(Math.cos(theta * g), Math.sin(theta * g) * (-1), 0, 0,
-            Math.sin(theta * g), Math.cos(theta * g), 0, 0,
-            0, 0, 1, 0,
-            0, 0, 0, 1);
+        let m =  new Matrix4(Math.cos(theta * g), Math.sin(theta * g) * (-1), 0, 0,
+                           Math.sin(theta * g), Math.cos(theta * g),        0, 0,
+                           0,                   0,                          1, 0,
+                           0,                   0,                          0, 1);
         return m.transpose();
     }
 
@@ -287,9 +288,9 @@ export default class Matrix4 {
      */
     static scale(v) {
         return new Matrix4(v.x, 0, 0, 0,
-            0, v.y, 0, 0,
-            0, 0, v.z, 0,
-            0, 0, 0, 1);
+                           0, v.y, 0, 0,
+                           0, 0, v.z, 0,
+                           0, 0, 0, 1);
     }
 
     /**
@@ -300,9 +301,9 @@ export default class Matrix4 {
      */
     static translate(v) {
         let m = new Matrix4(1, 0, 0, v.x,
-            0, 1, 0, v.y,
-            0, 0, 1, v.z,
-            0, 0, 0, 1);
+                           0, 1, 0, v.y,
+                           0, 0, 1, v.z,
+                           0, 0, 0, 1   );
         return m.transpose();
     }
 
@@ -319,27 +320,25 @@ export default class Matrix4 {
      * @return {Matrix4}
      */
     static lookAt(eye, center, up) {
+    
+        let w = Vector3.subtract(eye,center).normalize();
+        let u = Vector3.cross(up,w).normalize();
+        let v = Vector3.cross(w,u).normalize();
 
-        let w = Vector3.subtract(eye, center).normalize();
-        let u = Vector3.cross(up, w).normalize();
-        let v = Vector3.cross(w, u).normalize();
+        let m1 = new Matrix4    (u.x , u.y , u.z, 0,
+                                 v.x , v.y , v.z, 0,
+                                 w.x , w.y , w.z, 0,
+                                 0   , 0   , 0  , 1);
 
-        let m1 = new Matrix4(
-            u.x, u.y, u.z, 0,
-            v.x, v.y, v.z, 0,
-            w.x, w.y, w.z, 0,
-            0, 0, 0, 1);
+        let m2 = new Matrix4    (1, 0 , 0 , eye.x*(-1) ,
+                                 0, 1 , 0 , eye.y*(-1) ,
+                                 0, 0 , 1 , eye.z*(-1) ,
+                                 0, 0 , 0 , 1 );
 
-        let m2 = new Matrix4(
-            1, 0, 0, eye.x * (-1),
-            0, 1, 0, eye.y * (-1),
-            0, 0, 1, eye.z * (-1),
-            0, 0, 0, 1);
-
-        let m = Matrix4.multiply(m1, m2);
+        let m = Matrix4.multiply(m1,m2);
 
         return m;
-    }
+    } 
 
     /** 
      *                          PROYECCIONES
@@ -358,13 +357,13 @@ export default class Matrix4 {
      */
     static frustum(left, right, bottom, top, near, far) {
         let m = new Matrix4(
-            ((2 * near) / (right - left)), 0, ((right + left) / (right - left)), 0,
-            0, ((2 * near) / (top - bottom)), ((top + bottom) / (top - bottom)), 0,
-            0, 0, ((-1) * ((far + near) / (far - near))), ((-1) * ((2 * far * near) / (far - near))),
-            0, 0, -1, 0);
+                           ((2 * near) / (right - left)), 0,                             ((right + left) / (right - left)),      0,
+                           0,                             ((2 * near) / (top - bottom)), ((top + bottom) / (top - bottom)),      0,
+                           0,                             0,                             ((-1) * ((far + near) / (far - near))), ((-1) * ((2 * far * near) / (far - near))),
+                           0,                             0,                             -1,                                     0);
         return m;
     }
-
+   
     /**
      * ortho, devuelve una matriz que corresponde a una proyección ortogonal, determinada
      * por los planos dados por los parámetros left, right, bottom, top, near y far.
@@ -376,14 +375,26 @@ export default class Matrix4 {
      * @param {Number} far
      * @return {Matrix4}
      */
-    static ortho(left, right, bottom, top, near, far) {
-        let m = new Matrix4(
-            (2 / (right - left)), 0, 0, (-1) * ((right + left) / (right - left)),
-            0, (2 / (top - bottom)), 0, (-1) * ((top + bottom) / (top - bottom)),
-            0, 0, (2 / (near - far)), (-1) * ((near + far) / (near - far)),
-            0, 0, 0, 1);
-        return m;
-    }
+    static ortho(left, right, bottom, top, near, far){
+        let m1 = new Matrix4 ( (2/(right-left)), 0                 , 0              , (-1)*((right + left)/(right - left)),
+                                0              , (2/(top-bottom))  , 0              , (-1)*((top + bottom)/(top - bottom)) ,
+                                0              , 0                 , (2/(near-far)) , (-1)*((near + far)/(near - far)),
+                                0              , 0                 , 0              , 1                                    );
+
+        let m2 = new Matrix4 ( near , 0    , 0          , 0 ,
+                               0    , near , 0          , 0 ,
+                               0    , 0    , near + far , (-1)*far * near ,
+                               0    , 0    , 1          , 0  )
+
+        /**let m = new Matrix4 ( ((2*near)/(right-left))              , 0                                  , 0                              , 0,
+                              0                                  , ((2*near)/(top-bottom))              , 0                              , 0,
+                              (-1)*((right+left)/(right - left)) , (-1)*((top+bottom)/(top - bottom)) , ((near+far)/(near - far))      , 1,
+                              0                                  , 0                                  , (-1)*((2*near*far)/(near-far)) , 0);
+        return m.transpose();*/
+
+        let m = this.multiply(m1,m2);
+        return m1;
+        }
 
     /**
      * perspective, devuelve una matriz que corresponde a una proyección en perspectiva.
@@ -398,11 +409,10 @@ export default class Matrix4 {
      */
     static perspective(fovy, aspect, near, far) {
         let ftan = 1 / Math.tan(fovy / 2);
-        let m = new Matrix4(
-            ftan / aspect, 0, 0, 0,
-            0, ftan, 0, 0,
-            0, 0, (near + far) / -(near - far), (-1),
-            0, 0, (2 * far * near) / (near - far), 0);
+        let m = new Matrix4(ftan / aspect, 0,    0,                              0,
+                           0,             ftan, 0,                               0,
+                           0,             0,    (near + far) / (near - far),     -1,
+                           0,             0,    (2 * far * near) / (near - far), 0);
         return m.transpose();
     }
 
@@ -501,10 +511,10 @@ export default class Matrix4 {
      * printm, muestra en consola la matriz que la llama
      */
     printm() {
-        console.log("| " + this.a00 + " " + this.a01 + " " + this.a02 + " " + this.a03 + " |");
-        console.log("| " + this.a10 + " " + this.a11 + " " + this.a12 + " " + this.a13 + " |");
-        console.log("| " + this.a20 + " " + this.a21 + " " + this.a22 + " " + this.a23 + " |");
-        console.log("| " + this.a30 + " " + this.a31 + " " + this.a32 + " " + this.a33 + " |");
+        console.log("| "+this.a00+" "+this.a01+" "+this.a02+" "+this.a03+" |");
+        console.log("| "+this.a10+" "+this.a11+" "+this.a12+" "+this.a13+" |");
+        console.log("| "+this.a20+" "+this.a21+" "+this.a22+" "+this.a23+" |");
+        console.log("| "+this.a30+" "+this.a31+" "+this.a32+" "+this.a33+" |");
     }
 
 }

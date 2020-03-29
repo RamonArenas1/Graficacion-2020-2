@@ -1,5 +1,5 @@
 export default class Vector3 {
-
+    
     constructor(x = 0, y = 0, z = 0) {
         this.x = arguments[0];
         this.y = arguments[1];
@@ -32,13 +32,9 @@ export default class Vector3 {
      * @return {Vector3}
      */
     static cross(u, v) {
-<<<<<<< HEAD:Proyecto1/src/Vector3.js
         return new Vector3((u.y * v.z - u.z * v.y), 
                           -(u.x * v.z - u.z * v.x), 
                            (u.x * v.y - u.y * v.x));
-=======
-        return new Vector3(((u.y * v.z) - (u.z * v.y)), (-((u.x * v.z) - (u.z * v.x))), ((u.x * v.y) - (u.y * v.x)));
->>>>>>> 70d603220dcdc77021889e7228cd76bc3867ae04:Proyecto1/src/P3/Class/Vector3.js
     }
 
     /**
@@ -145,23 +141,23 @@ export default class Vector3 {
         return new Vector3(a * this.x, a * this.y, a * this.z);
     }
 
-    /**
-     * Función squaredLength, nos regresa el cuadrado del tamaño del vector que invoca
-     * la función.
-     * @return {Number}
-     */
-    squaredLength() {
-        return (this.x ** 2 + this.y ** 2 + this.z ** 2);
+     /**
+    * Función squaredLength, nos regresa el cuadrado del tamaño del vector que invoca
+    * la función.
+	* @return {Number}
+	*/
+	squaredLength(){
+			return (this.x**2 + this.y**2 + this.z**2);
     }
-
+    
     /**
-     * Función subtract, se encarga de realizar la resta de las componentes de dos vectores.
-     * @param {Vector3} u
-     * @param {Vector3} v
-     * @return {Vector3}
-     */
-    static subtract(u, v) {
-        return new Vector3(u.x - v.x, u.y - v.y, u.z - v.z);
+    * Función subtract, se encarga de realizar la resta de las componentes de dos vectores.
+ 	* @param {Vector3} u
+ 	* @param {Vector3} v
+ 	* @return {Vector3}
+ 	*/
+ 	static subtract(u, v){
+        return new Vector3(u.x - v.x , u.y - v.y , u.z - v.z);
     }
 
 }
