@@ -1,7 +1,7 @@
 import Vector3 from "./Vector3.js";
 import Matrix4 from "./Matrix4.js";
 
-export default class Icosaedro {
+export default class Cono {
 
     /**
      * @param {WebGLRenderingContext} gl
@@ -11,9 +11,12 @@ export default class Icosaedro {
      * @param {Number} length
      * @param {Matrix4} initial_transform
      */
-    constructor(gl, color, width, initial_transform) {
+    constructor(gl, color, radius, height, Nu, Nv, initial_transform) {
 
-        this.w = (width || 1) / 2;
+        this.radius = (radius || 1);
+        this.height = (height || 1);
+        this.Nu = Nu || 2;
+        this.Nv = Nv || 2;
 
         let matrixAux = new Matrix4(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
         //let m = matrixAux.identity();
@@ -68,7 +71,7 @@ export default class Icosaedro {
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
 
-        gl.drawElements(gl.TRIANGLES, this.num_elements, gl.UNSIGNED_SHORT, 0);
+        gl.drawElements(gl.TRIANGLE_FAN, this.num_elements, gl.UNSIGNED_SHORT, 0);
 
         //projectionViewModelMatrixAux.printm();
         //projectionViewModelMatrix.printm();
@@ -78,50 +81,67 @@ export default class Icosaedro {
      * Función que devuelve los vértices que definen un cubo
      */
     getVertices() {
-        var goldenRatio = 1.6180339887;
-        let width_m_goldenRatio = this.w * goldenRatio;
 
-        return [
-            0, this.w, width_m_goldenRatio,
-            0, this.w, -width_m_goldenRatio,
-            0, -this.w, width_m_goldenRatio,
-            0, -this.w, -width_m_goldenRatio,
-            this.w, width_m_goldenRatio, 0,
-            this.w, -width_m_goldenRatio, 0, //
-            -this.w, width_m_goldenRatio, 0, //
-            -this.w, -width_m_goldenRatio, 0,
-            width_m_goldenRatio, 0, this.w,
-            width_m_goldenRatio, 0, -this.w, //
-            -width_m_goldenRatio, 0, this.w, //
-            -width_m_goldenRatio, 0, -this.w,
-        ];
+        let vertices = [];
+
+        for (let i = 1; i < this.Nv + 1; i++) {
+            for (let j = 1; j < this.Nu + 1; j++) {
+                vertices.push(this.radius * (this.Nv - i) / this.Nv * Math.cos(j * 2 * Math.PI / this.Nu));
+                vertices.push(-this.height + i * 2 * this.height / this.Nv);
+                vertices.push(this.radius * (this.Nv - i) / this.Nv * Math.sin(j * 2 * Math.PI / this.Nu));
+            }
+        }
+        // el último punto que se agrega es el correspondiente al vértice del cono
+        vertices.push(0);
+        vertices.push(this.height);
+        vertices.push(0);
+
+        //console.log(vertices, "verticesAux");
+        return vertices;
     }
 
     /**
      * Función que devuelve los indices de los vértices que forman las caras del cubo
      */
     getFaces() {
-        return [
-            10, 0, 2, //
-            0, 8, 2, //
-            8, 5, 2, //
-            5, 7, 2, //
-            7, 10, 2, //
-            6, 0, 10, //
-            11, 6, 10, //
-            7, 11, 10, //
-            7, 3, 11, //
-            5, 3, 7, //
-            9, 3, 5, //
-            8, 9, 5, //
-            4, 9, 8, //
-            0, 4, 8, //
-            6, 4, 0, //
-            11, 3, 1, //
-            6, 11, 1, //
-            4, 6, 1, //
-            9, 4, 1, //
-            3, 9, 1
-        ]
+
+        let faces = [];
+        let facesAux = [];
+
+        // se generan los cuadriláteros que unen las caras del cilindro
+        for (let i = 0; i < this.Nv - 1; i++) {
+            for (let j = 0; j < this.Nu; j++) {
+                faces.push(j + i * this.Nu);
+                faces.push((j + 1) % this.Nu + i * this.Nu);
+                faces.push((j + 1) % this.Nu + (i + 1) * this.Nu);
+                faces.push(j + (i + 1) * this.Nu);
+            }
+        }
+
+        for (let i = 0; i < this.Nv - 1; i++) {
+            for (let j = 0; j < this.Nu; j++) {
+                facesAux.push([
+                    j + i * this.Nu,
+                    (j + 1) % this.Nu + i * this.Nu,
+                    (j + 1) % this.Nu + (i + 1) * this.Nu,
+                    j + (i + 1) * this.Nu
+                ]);
+            }
+        }
+        //console.log(faces, "facesAux", facesA);
+        return faces;
     }
 }
+/** Así esta la funcion toArray de Matrix4
+ * 
+     * @return {Array}
+     *
+    toArray() {
+        return [
+            this.a00, this.a01, this.a02, this.a03,
+            this.a10, this.a11, this.a12, this.a13,
+            this.a20, this.a21, this.a22, this.a23,
+            this.a30, this.a31, this.a32, this.a33
+        ];
+    }
+ */

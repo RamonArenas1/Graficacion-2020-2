@@ -1,7 +1,7 @@
 import Vector3 from "./Vector3.js";
 import Matrix4 from "./Matrix4.js";
 
-export default class Icosaedro {
+export default class Esfera {
 
     /**
      * @param {WebGLRenderingContext} gl
@@ -11,9 +11,11 @@ export default class Icosaedro {
      * @param {Number} length
      * @param {Matrix4} initial_transform
      */
-    constructor(gl, color, width, initial_transform) {
+    constructor(gl, color, radius, Nu, Nv, initial_transform) {
 
-        this.w = (width || 1) / 2;
+        this.radius = radius || 1;
+        this.Nu = Nu || 2;
+        this.Nv = Nv || 2;
 
         let matrixAux = new Matrix4(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
         //let m = matrixAux.identity();
@@ -68,7 +70,7 @@ export default class Icosaedro {
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
 
-        gl.drawElements(gl.TRIANGLES, this.num_elements, gl.UNSIGNED_SHORT, 0);
+        gl.drawElements(gl.TRIANGLE_FAN, this.num_elements, gl.UNSIGNED_SHORT, 0);
 
         //projectionViewModelMatrixAux.printm();
         //projectionViewModelMatrix.printm();
@@ -78,50 +80,70 @@ export default class Icosaedro {
      * Función que devuelve los vértices que definen un cubo
      */
     getVertices() {
-        var goldenRatio = 1.6180339887;
-        let width_m_goldenRatio = this.w * goldenRatio;
 
-        return [
-            0, this.w, width_m_goldenRatio,
-            0, this.w, -width_m_goldenRatio,
-            0, -this.w, width_m_goldenRatio,
-            0, -this.w, -width_m_goldenRatio,
-            this.w, width_m_goldenRatio, 0,
-            this.w, -width_m_goldenRatio, 0, //
-            -this.w, width_m_goldenRatio, 0, //
-            -this.w, -width_m_goldenRatio, 0,
-            width_m_goldenRatio, 0, this.w,
-            width_m_goldenRatio, 0, -this.w, //
-            -width_m_goldenRatio, 0, this.w, //
-            -width_m_goldenRatio, 0, -this.w,
-        ];
+        let vertices = [];
+        let phi;
+        let theta;
+        let x, y, z;
+
+        // se calculan los vertices de la esfera haciendo un barrido en círculos paralelos
+        // de arriba a abajo en Y
+        vertices.push(0);
+        vertices.push(this.radius);
+        vertices.push(0);
+
+        for (let i = 1; i < this.Nu + 1; i++) {
+            phi = (i * Math.PI) / this.Nu;
+
+            for (let j = 0; j < this.Nv; j++) {
+                theta = (j * 2 * Math.PI) / this.Nv;
+
+                x = this.radius * Math.sin(phi) * Math.cos(theta);
+                y = this.radius * Math.cos(phi);
+                z = this.radius * Math.sin(phi) * Math.sin(theta);
+
+                vertices.push(x);
+                vertices.push(y);
+                vertices.push(z);
+            }
+        }
+        vertices.push(0);
+        vertices.push(-this.radius);
+        vertices.push(0);
+
+        //console.log(vertices, "verticesAux", verticesAux)
+        return vertices;
     }
 
     /**
      * Función que devuelve los indices de los vértices que forman las caras del cubo
      */
     getFaces() {
-        return [
-            10, 0, 2, //
-            0, 8, 2, //
-            8, 5, 2, //
-            5, 7, 2, //
-            7, 10, 2, //
-            6, 0, 10, //
-            11, 6, 10, //
-            7, 11, 10, //
-            7, 3, 11, //
-            5, 3, 7, //
-            9, 3, 5, //
-            8, 9, 5, //
-            4, 9, 8, //
-            0, 4, 8, //
-            6, 4, 0, //
-            11, 3, 1, //
-            6, 11, 1, //
-            4, 6, 1, //
-            9, 4, 1, //
-            3, 9, 1
-        ]
+        let faces = [];
+        let facesAux = [];
+
+        // se generan los cuadriláteros que unen las caras del cilindro
+        for (let i = 0; i < this.Nv - 1; i++) {
+            for (let j = 0; j < this.Nu; j++) {
+                faces.push(j + i * this.Nu);
+                faces.push((j + 1) % this.Nu + i * this.Nu);
+                faces.push((j + 1) % this.Nu + (i + 1) * this.Nu);
+                faces.push(j + (i + 1) * this.Nu);
+            }
+        }
+
+        for (let i = 0; i < this.Nv - 1; i++) {
+            for (let j = 0; j < this.Nu; j++) {
+                facesAux.push([
+                    j + i * this.Nu,
+                    (j + 1) % this.Nu + i * this.Nu,
+                    (j + 1) % this.Nu + (i + 1) * this.Nu,
+                    j + (i + 1) * this.Nu
+                ]);
+            }
+        }
+
+        //console.log(faces, "facesAux", facesAux);
+        return faces;
     }
 }

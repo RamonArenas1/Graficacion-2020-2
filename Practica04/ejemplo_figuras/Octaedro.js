@@ -1,7 +1,7 @@
 import Vector3 from "./Vector3.js";
 import Matrix4 from "./Matrix4.js";
 
-export default class Icosaedro {
+export default class Octaedro {
 
     /**
      * @param {WebGLRenderingContext} gl
@@ -13,7 +13,7 @@ export default class Icosaedro {
      */
     constructor(gl, color, width, initial_transform) {
 
-        this.w = (width || 1) / 2;
+        this.w = (width || 1);
 
         let matrixAux = new Matrix4(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
         //let m = matrixAux.identity();
@@ -82,18 +82,12 @@ export default class Icosaedro {
         let width_m_goldenRatio = this.w * goldenRatio;
 
         return [
-            0, this.w, width_m_goldenRatio,
-            0, this.w, -width_m_goldenRatio,
-            0, -this.w, width_m_goldenRatio,
-            0, -this.w, -width_m_goldenRatio,
-            this.w, width_m_goldenRatio, 0,
-            this.w, -width_m_goldenRatio, 0, //
-            -this.w, width_m_goldenRatio, 0, //
-            -this.w, -width_m_goldenRatio, 0,
-            width_m_goldenRatio, 0, this.w,
-            width_m_goldenRatio, 0, -this.w, //
-            -width_m_goldenRatio, 0, this.w, //
-            -width_m_goldenRatio, 0, -this.w,
+            0, 0, this.w,
+            this.w, 0, 0, //
+            -this.w, 0, 0,
+            0, this.w, 0,
+            0, -this.w, 0,
+            0, 0, -this.w
         ];
     }
 
@@ -102,26 +96,27 @@ export default class Icosaedro {
      */
     getFaces() {
         return [
-            10, 0, 2, //
-            0, 8, 2, //
-            8, 5, 2, //
-            5, 7, 2, //
-            7, 10, 2, //
-            6, 0, 10, //
-            11, 6, 10, //
-            7, 11, 10, //
-            7, 3, 11, //
-            5, 3, 7, //
-            9, 3, 5, //
-            8, 9, 5, //
-            4, 9, 8, //
-            0, 4, 8, //
-            6, 4, 0, //
-            11, 3, 1, //
-            6, 11, 1, //
-            4, 6, 1, //
-            9, 4, 1, //
-            3, 9, 1
+            3, 1, 0,
+            2, 3, 0,
+            1, 4, 0,
+            4, 2, 0,
+            1, 3, 5,
+            3, 2, 5,
+            4, 1, 5,
+            2, 4, 5
         ]
     }
 }
+/** Así esta la funcion toArray de Matrix4
+ * 
+     * @return {Array}
+     *
+    toArray() {
+        return [
+            this.a00, this.a01, this.a02, this.a03,
+            this.a10, this.a11, this.a12, this.a13,
+            this.a20, this.a21, this.a22, this.a23,
+            this.a30, this.a31, this.a32, this.a33
+        ];
+    }
+ */

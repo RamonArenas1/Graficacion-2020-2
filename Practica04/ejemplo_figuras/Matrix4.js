@@ -342,7 +342,7 @@ export default class Matrix4 {
 
         let m = Matrix4.multiply(m1, m2);
 
-        return m.transpose();
+        return m;
     }
 
     /**
@@ -350,10 +350,10 @@ export default class Matrix4 {
      */
     toArray() {
         return [
-            this.a00, this.a01, this.a02, this.a03,
-            this.a10, this.a11, this.a12, this.a13,
-            this.a20, this.a21, this.a22, this.a23,
-            this.a30, this.a31, this.a32, this.a33
+            this.a00, this.a10, this.a20, this.a30,
+            this.a01, this.a11, this.a21, this.a31,
+            this.a02, this.a12, this.a22, this.a32,
+            this.a03, this.a13, this.a23, this.a33
         ];
     }
 

@@ -2,17 +2,15 @@
 import Vector3 from "./Vector3.js";
 import Matrix4 from "./Matrix4.js";
 
-/*import Cilindro from "./Cilindro.js";
+import Cilindro from "./Cilindro.js";
 import Cono from "./Cono.js";
-import Dodecaedro from "./Dodecaedro.js";
-import Esfera from "./Esfera.js";*/
+/*import Dodecaedro from "./Dodecaedro.js";*/
+import Esfera from "./Esfera.js";
 import Icosaedro from "./Icosaedro.js";
-/*
-import Octaedro from "./Octaedro.js";*/
+import Octaedro from "./Octaedro.js";
 import PrismaRectangular from "./PrismaRectangular.js";
-/*
 import Tetraedro from "./Tetraedro.js";
-import Toro from "./Toro.js";*/
+/*import Toro from "./Toro.js";*/
 
 window.addEventListener("load", function(evt) {
     // se obtiene una referencia al canvas
@@ -44,54 +42,56 @@ window.addEventListener("load", function(evt) {
 
     // se crean y posicionan los modelos geométricos, uno de cada tipo
     let geometry = [
+
+        new Cilindro(
+            gl, [1, 0, 0, 1],
+            2, 2, 16, 16,
+            Matrix4.translate(new Vector3(-5, 0, -5))
+        ),
+        new Cono(
+            gl, [0, 1, 0, 1],
+            2, 2, 16, 16,
+            Matrix4.translate(new Vector3(0, 0, -5))
+        ),
         /*
-                new Cilindro(
-                    gl, [1, 0, 0, 1],
-                    2, 2, 16, 16,
-                    Matrix4.translate(new Vector3(-5, 0, -5))
-                ),
-                new Cono(
-                    gl, [0, 1, 0, 1],
-                    2, 2, 16, 16,
-                    Matrix4.translate(new Vector3(0, 0, -5))
-                ),
-                new Dodecaedro(
-                    gl, [0, 0, 1, 1],
-                    2,
-                    Matrix4.translate(new Vector3(5, 0, -5))
-                ),
-                new Esfera(
-                    gl, [0, 1, 1, 1],
-                    2, 16, 16,
-                    Matrix4.translate(new Vector3(-5, 0, 0))
-                ),*/
+                                new Dodecaedro(
+                                    gl, [0, 0, 1, 1],
+                                    2,
+                                    Matrix4.translate(new Vector3(5, 0, -5))
+                                ),*/
+        new Esfera(
+            gl, [0, 1, 1, 1],
+            2, 16, 16,
+            Matrix4.translate(new Vector3(-5, 0, 0))
+        ),
         new Icosaedro(gl, [1, 0, 1, 1],
             2,
             Matrix4.translate(new Vector3(0, 0, 0))
         ),
-        /*
-                        new Octaedro(
-                            gl, [1, 1, 0, 1],
-                            2,
-                            Matrix4.translate(new Vector3(5, 0, 0))
-                        ),*/
+
+        new Octaedro(
+            gl, [1, 1, 0, 1],
+            2,
+            Matrix4.translate(new Vector3(5, 0, 0))
+        ),
+
         new PrismaRectangular(
             gl, [1, 0.2, 0.3, 1],
             2, 3, 4,
             Matrix4.translate(new Vector3(-5, 0, 5))
         ),
+
+        new Tetraedro(
+            gl, [0.5, 0.5, 0.5, 1],
+            2,
+            Matrix4.translate(new Vector3(0, 0, 5))
+        ),
         /*
-                        
-                                new Tetraedro(
-                                    gl, [0.5, 0.5, 0.5, 1],
-                                    2,
-                                    Matrix4.translate(new Vector3(0, 0, 5))
-                                ),
-                                new Toro(
-                                    gl, [0.25, 0.25, 0.25, 1],
-                                    4, 1, 16, 16,
-                                    Matrix4.translate(new Vector3(5, 0, 5))
-                                ),*/
+                                        new Toro(
+                                            gl, [0.25, 0.25, 0.25, 1],
+                                            4, 1, 16, 16,
+                                            Matrix4.translate(new Vector3(5, 0, 5))
+                                        ),*/
     ];
 
     // se activa la prueba de profundidad, esto hace que se utilice el buffer de profundidad para determinar que píxeles se dibujan y cuales se descartan

@@ -1,7 +1,7 @@
 import Vector3 from "./Vector3.js";
 import Matrix4 from "./Matrix4.js";
 
-export default class Icosaedro {
+export default class Tetraedro {
 
     /**
      * @param {WebGLRenderingContext} gl
@@ -13,7 +13,7 @@ export default class Icosaedro {
      */
     constructor(gl, color, width, initial_transform) {
 
-        this.w = (width || 1) / 2;
+        this.w = (width || 1);
 
         let matrixAux = new Matrix4(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
         //let m = matrixAux.identity();
@@ -78,22 +78,18 @@ export default class Icosaedro {
      * Función que devuelve los vértices que definen un cubo
      */
     getVertices() {
-        var goldenRatio = 1.6180339887;
-        let width_m_goldenRatio = this.w * goldenRatio;
+        let angle = 2 * Math.PI / 3;
+        let x = this.w * 2 * Math.sqrt(2) / 3;
+        let y = 0;
+        let z = -this.w / 3;
+        let x0 = x * Math.cos(angle) + y * Math.sin(angle);
+        let y0 = -x * Math.sin(angle) + y * Math.cos(angle);
 
         return [
-            0, this.w, width_m_goldenRatio,
-            0, this.w, -width_m_goldenRatio,
-            0, -this.w, width_m_goldenRatio,
-            0, -this.w, -width_m_goldenRatio,
-            this.w, width_m_goldenRatio, 0,
-            this.w, -width_m_goldenRatio, 0, //
-            -this.w, width_m_goldenRatio, 0, //
-            -this.w, -width_m_goldenRatio, 0,
-            width_m_goldenRatio, 0, this.w,
-            width_m_goldenRatio, 0, -this.w, //
-            -width_m_goldenRatio, 0, this.w, //
-            -width_m_goldenRatio, 0, -this.w,
+            0, 0, this.w,
+            x0, y0, z,
+            x0, -y0, z,
+            x, y, z
         ];
     }
 
@@ -102,26 +98,10 @@ export default class Icosaedro {
      */
     getFaces() {
         return [
-            10, 0, 2, //
-            0, 8, 2, //
-            8, 5, 2, //
-            5, 7, 2, //
-            7, 10, 2, //
-            6, 0, 10, //
-            11, 6, 10, //
-            7, 11, 10, //
-            7, 3, 11, //
-            5, 3, 7, //
-            9, 3, 5, //
-            8, 9, 5, //
-            4, 9, 8, //
-            0, 4, 8, //
-            6, 4, 0, //
-            11, 3, 1, //
-            6, 11, 1, //
-            4, 6, 1, //
-            9, 4, 1, //
-            3, 9, 1
+            1, 3, 2,
+            0, 1, 2,
+            0, 2, 3,
+            0, 3, 1
         ]
     }
 }
