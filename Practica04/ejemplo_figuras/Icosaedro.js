@@ -1,4 +1,3 @@
-import Vector3 from "../maths_CG/Vector3.js";
 import Matrix4 from "../maths_CG/Matrix4.js";
 
 export default class Icosaedro {
@@ -16,10 +15,8 @@ export default class Icosaedro {
         this.w = (width || 1) / 2;
 
         let matrixAux = new Matrix4(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-        //let m = matrixAux.identity();
 
         this.initial_transform = initial_transform || matrixAux.identity();
-        //m.printm();
         this.positionBuffer = gl.createBuffer();
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
@@ -69,13 +66,10 @@ export default class Icosaedro {
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
 
         gl.drawElements(gl.TRIANGLES, this.num_elements, gl.UNSIGNED_SHORT, 0);
-
-        //projectionViewModelMatrixAux.printm();
-        //projectionViewModelMatrix.printm();
     }
 
     /**
-     * Función que devuelve los vértices que definen un cubo
+     * Función que devuelve los vértices que definen un icosaedro
      */
     getVertices() {
         var goldenRatio = 1.6180339887;
@@ -98,7 +92,7 @@ export default class Icosaedro {
     }
 
     /**
-     * Función que devuelve los indices de los vértices que forman las caras del cubo
+     * Función que devuelve los indices de los vértices que forman las caras del icosaedro
      */
     getFaces() {
         return [

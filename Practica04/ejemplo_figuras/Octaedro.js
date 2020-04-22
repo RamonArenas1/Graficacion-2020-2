@@ -1,4 +1,3 @@
-import Vector3 from "../maths_CG/Vector3.js";
 import Matrix4 from "../maths_CG/Matrix4.js";
 
 export default class Octaedro {
@@ -16,10 +15,8 @@ export default class Octaedro {
         this.w = (width || 1);
 
         let matrixAux = new Matrix4(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-        //let m = matrixAux.identity();
 
         this.initial_transform = initial_transform || matrixAux.identity();
-        //m.printm();
         this.positionBuffer = gl.createBuffer();
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
@@ -69,18 +66,12 @@ export default class Octaedro {
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
 
         gl.drawElements(gl.TRIANGLES, this.num_elements, gl.UNSIGNED_SHORT, 0);
-
-        //projectionViewModelMatrixAux.printm();
-        //projectionViewModelMatrix.printm();
     }
 
     /**
-     * Función que devuelve los vértices que definen un cubo
+     * Función que devuelve los vértices que definen un Octaedro
      */
     getVertices() {
-        var goldenRatio = 1.6180339887;
-        let width_m_goldenRatio = this.w * goldenRatio;
-
         return [
             0, 0, this.w,
             this.w, 0, 0, //
@@ -92,7 +83,7 @@ export default class Octaedro {
     }
 
     /**
-     * Función que devuelve los indices de los vértices que forman las caras del cubo
+     * Función que devuelve los indices de los vértices que forman las caras del Octaedro
      */
     getFaces() {
         return [
@@ -107,16 +98,3 @@ export default class Octaedro {
         ]
     }
 }
-/** Así esta la funcion toArray de Matrix4
- * 
-     * @return {Array}
-     *
-    toArray() {
-        return [
-            this.a00, this.a01, this.a02, this.a03,
-            this.a10, this.a11, this.a12, this.a13,
-            this.a20, this.a21, this.a22, this.a23,
-            this.a30, this.a31, this.a32, this.a33
-        ];
-    }
- */

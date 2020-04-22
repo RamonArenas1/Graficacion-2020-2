@@ -1,4 +1,3 @@
-import Vector3 from "../maths_CG/Vector3.js";
 import Matrix4 from "../maths_CG/Matrix4.js";
 
 export default class Tetraedro {
@@ -16,10 +15,8 @@ export default class Tetraedro {
         this.w = (width || 1);
 
         let matrixAux = new Matrix4(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-        //let m = matrixAux.identity();
 
         this.initial_transform = initial_transform || matrixAux.identity();
-        //m.printm();
         this.positionBuffer = gl.createBuffer();
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
@@ -70,12 +67,10 @@ export default class Tetraedro {
 
         gl.drawElements(gl.TRIANGLES, this.num_elements, gl.UNSIGNED_SHORT, 0);
 
-        //projectionViewModelMatrixAux.printm();
-        //projectionViewModelMatrix.printm();
     }
 
     /**
-     * Función que devuelve los vértices que definen un cubo
+     * Función que devuelve los vértices que definen un Tetaedro
      */
     getVertices() {
         let angle = 2 * Math.PI / 3;
@@ -94,7 +89,7 @@ export default class Tetraedro {
     }
 
     /**
-     * Función que devuelve los indices de los vértices que forman las caras del cubo
+     * Función que devuelve los indices de los vértices que forman las caras del Tetaedro
      */
     getFaces() {
         return [

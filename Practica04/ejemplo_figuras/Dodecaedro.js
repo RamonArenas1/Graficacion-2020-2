@@ -1,7 +1,6 @@
-import Vector3 from "../maths_CG/Vector3.js";
 import Matrix4 from "../maths_CG/Matrix4.js";
 
-export default class Esfera {
+export default class Dodecaedro {
 
     /**
      * @param {WebGLRenderingContext} gl
@@ -11,17 +10,13 @@ export default class Esfera {
      * @param {Number} length
      * @param {Matrix4} initial_transform
      */
-    constructor(gl, color, radius, Nu, Nv, initial_transform) {
+    constructor(gl, color, width, initial_transform) {
 
-        this.radius = radius || 1;
-        this.Nu = Nu || 2;
-        this.Nv = Nv || 2;
+        this.w = (width || 1) / Math.PI;
 
         let matrixAux = new Matrix4(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-        //let m = matrixAux.identity();
 
         this.initial_transform = initial_transform || matrixAux.identity();
-        //m.printm();
         this.positionBuffer = gl.createBuffer();
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
@@ -71,60 +66,60 @@ export default class Esfera {
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
 
         gl.drawElements(gl.TRIANGLE_FAN, this.num_elements, gl.UNSIGNED_SHORT, 0);
+
     }
 
     /**
-     * Función que devuelve los vértices que definen un esfera
+     * Función que devuelve los vértices que definen un dodecaedro
      */
     getVertices() {
 
-        let vertices = [];
-        let phi;
-        let theta;
-        let x, y, z;
+        var goldenRatio = 1.6180339887;
 
-        vertices.push(0);
-        vertices.push(this.radius);
-        vertices.push(0);
+        let width_d_goldenRatio = this.w / goldenRatio;
+        let width_m_goldenRatio = this.w * goldenRatio;
 
-        for (let i = 1; i < this.Nu + 1; i++) {
-            phi = (i * Math.PI) / this.Nu;
-
-            for (let j = 0; j < this.Nv; j++) {
-                theta = (j * 2 * Math.PI) / this.Nv;
-
-                x = this.radius * Math.sin(phi) * Math.cos(theta);
-                y = this.radius * Math.cos(phi);
-                z = this.radius * Math.sin(phi) * Math.sin(theta);
-
-                vertices.push(x);
-                vertices.push(y);
-                vertices.push(z);
-            }
-        }
-
-        vertices.push(0);
-        vertices.push(-this.radius);
-        vertices.push(0);
-
-        return vertices;
+        return [
+            this.w, this.w, this.w, //
+            this.w, this.w, -this.w, //
+            this.w, -this.w, this.w, //
+            this.w, -this.w, -this.w, //
+            -this.w, this.w, this.w, //
+            -this.w, this.w, -this.w, //
+            -this.w, -this.w, this.w, //
+            -this.w, -this.w, -this.w, //
+            0, width_d_goldenRatio, width_m_goldenRatio, //
+            0, width_d_goldenRatio, -width_m_goldenRatio, //
+            0, -width_d_goldenRatio, width_m_goldenRatio, //
+            0, -width_d_goldenRatio, -width_m_goldenRatio, //
+            width_d_goldenRatio, width_m_goldenRatio, 0, //
+            width_d_goldenRatio, -width_m_goldenRatio, 0, //
+            -width_d_goldenRatio, width_m_goldenRatio, 0, //
+            -width_d_goldenRatio, -width_m_goldenRatio, 0, //
+            width_m_goldenRatio, 0, width_d_goldenRatio, //
+            width_m_goldenRatio, 0, -width_d_goldenRatio, //
+            -width_m_goldenRatio, 0, width_d_goldenRatio, //
+            -width_m_goldenRatio, 0, -width_d_goldenRatio
+        ];
     }
 
     /**
-     * Función que devuelve los indices de los vértices que forman las caras del esfera
+     * Función que devuelve los indices de los vértices que forman las caras del Dodecaedro
      */
     getFaces() {
-        let faces = [];
-
-        for (let i = 0; i < this.Nv - 1; i++) {
-            for (let j = 0; j < this.Nu; j++) {
-                faces.push(j + i * this.Nu);
-                faces.push((j + 1) % this.Nu + i * this.Nu);
-                faces.push((j + 1) % this.Nu + (i + 1) * this.Nu);
-                faces.push(j + (i + 1) * this.Nu);
-            }
-        }
-
-        return faces;
+        return [
+            0, 16, 2, 10, 8,
+            12, 1, 17, 16, 0,
+            8, 4, 14, 12, 0,
+            2, 16, 17, 3, 13,
+            13, 15, 6, 10, 2,
+            6, 18, 4, 8, 10,
+            3, 17, 1, 9, 11,
+            13, 3, 11, 7, 15,
+            1, 12, 14, 5, 9,
+            11, 9, 5, 19, 7,
+            5, 14, 4, 18, 19,
+            6, 15, 7, 19, 18
+        ]
     }
 }

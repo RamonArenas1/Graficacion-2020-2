@@ -4,13 +4,13 @@ import Matrix4 from "./maths_CG/Matrix4.js";
 
 import Cilindro from "./ejemplo_figuras/Cilindro.js";
 import Cono from "./ejemplo_figuras/Cono.js";
-/*import Dodecaedro from "./Dodecaedro.js";*/
+import Dodecaedro from "./ejemplo_figuras/Dodecaedro.js";
 import Esfera from "./ejemplo_figuras/Esfera.js";
 import Icosaedro from "./ejemplo_figuras/Icosaedro.js";
 import Octaedro from "./ejemplo_figuras/Octaedro.js";
 import PrismaRectangular from "./ejemplo_figuras/PrismaRectangular.js";
 import Tetraedro from "./ejemplo_figuras/Tetraedro.js";
-/*import Toro from "./Toro.js";*/
+import Toro from "./ejemplo_figuras/Toro.js";
 
 window.addEventListener("load", function(evt) {
     // se obtiene una referencia al canvas
@@ -53,12 +53,11 @@ window.addEventListener("load", function(evt) {
             2, 2, 16, 16,
             Matrix4.translate(new Vector3(0, 0, -5))
         ),
-        /*
-                                new Dodecaedro(
-                                    gl, [0, 0, 1, 1],
-                                    2,
-                                    Matrix4.translate(new Vector3(5, 0, -5))
-                                ),*/
+        new Dodecaedro(
+            gl, [0, 0, 1, 1],
+            2,
+            Matrix4.translate(new Vector3(5, 0, -5))
+        ),
         new Esfera(
             gl, [0, 1, 1, 1],
             2, 16, 16,
@@ -68,30 +67,26 @@ window.addEventListener("load", function(evt) {
             2,
             Matrix4.translate(new Vector3(0, 0, 0))
         ),
-
         new Octaedro(
             gl, [1, 1, 0, 1],
             2,
             Matrix4.translate(new Vector3(5, 0, 0))
         ),
-
         new PrismaRectangular(
             gl, [1, 0.2, 0.3, 1],
             2, 3, 4,
             Matrix4.translate(new Vector3(-5, 0, 5))
         ),
-
         new Tetraedro(
             gl, [0.5, 0.5, 0.5, 1],
             2,
             Matrix4.translate(new Vector3(0, 0, 5))
         ),
-        /*
-                                        new Toro(
-                                            gl, [0.25, 0.25, 0.25, 1],
-                                            4, 1, 16, 16,
-                                            Matrix4.translate(new Vector3(5, 0, 5))
-                                        ),*/
+        new Toro(
+            gl, [0.25, 0.25, 0.25, 1],
+            4, 1, 16, 16,
+            Matrix4.translate(new Vector3(5, 0, 5))
+        ),
     ];
 
     // se activa la prueba de profundidad, esto hace que se utilice el buffer de profundidad para determinar que píxeles se dibujan y cuales se descartan
