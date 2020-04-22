@@ -1,15 +1,15 @@
 // Se importan las clases a utilizar
-import Vector3 from "./Vector3.js";
-import Matrix4 from "./Matrix4.js";
+import Vector3 from "./maths_CG/Vector3.js";
+import Matrix4 from "./maths_CG/Matrix4.js";
 
-import Cilindro from "./Cilindro.js";
-import Cono from "./Cono.js";
+import Cilindro from "./ejemplo_figuras/Cilindro.js";
+import Cono from "./ejemplo_figuras/Cono.js";
 /*import Dodecaedro from "./Dodecaedro.js";*/
-import Esfera from "./Esfera.js";
-import Icosaedro from "./Icosaedro.js";
-import Octaedro from "./Octaedro.js";
-import PrismaRectangular from "./PrismaRectangular.js";
-import Tetraedro from "./Tetraedro.js";
+import Esfera from "./ejemplo_figuras/Esfera.js";
+import Icosaedro from "./ejemplo_figuras/Icosaedro.js";
+import Octaedro from "./ejemplo_figuras/Octaedro.js";
+import PrismaRectangular from "./ejemplo_figuras/PrismaRectangular.js";
+import Tetraedro from "./ejemplo_figuras/Tetraedro.js";
 /*import Toro from "./Toro.js";*/
 
 window.addEventListener("load", function(evt) {

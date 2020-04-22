@@ -428,10 +428,10 @@ export default class Matrix4 {
         let ftan = 1 / Math.tan(fovy / 2);
 
         let m = new Matrix4(
-            ftan / aspect, 0, 0, 0,
-            0, ftan, 0, 0,
-            0, 0, (near + far) / (near - far), -1,
-            0, 0, (2 * far * near) / (near - far), 0);
+            ftan / aspect, 0   , 0                              , 0,
+            0            , ftan, 0                              , 0,
+            0            , 0   , (near + far) / (near - far)    , (2 * far * near) / (near - far),
+            0            , 0   , -1                             , 0);
         return m;
     }
 

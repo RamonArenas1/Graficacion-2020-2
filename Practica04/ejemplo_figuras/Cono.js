@@ -1,5 +1,5 @@
-import Vector3 from "./Vector3.js";
-import Matrix4 from "./Matrix4.js";
+import Vector3 from "../maths_CG/Vector3.js";
+import Matrix4 from "../maths_CG/Matrix4.js";
 
 export default class Cono {
 
