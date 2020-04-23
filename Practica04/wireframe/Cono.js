@@ -1,6 +1,6 @@
 import Matrix4 from "../maths_CG/Matrix4.js";
 
-export default class Toro {
+export default class Cono {
 
     /**
      * @param {WebGLRenderingContext} gl
@@ -10,13 +10,10 @@ export default class Toro {
      * @param {Number} length
      * @param {Matrix4} initial_transform
      */
-    constructor(gl, color, major_radius, minor_radius, Nu, Nv, initial_transform) {
+    constructor(gl, color, radius, height, Nu, Nv, initial_transform) {
 
-        let Ra = (major_radius || 1) / 2;
-        let ra = (minor_radius || 1) / 2;
-
-        this.r = ra;
-        this.R = Ra;
+        this.radius = (radius || 1);
+        this.height = (height || 1);
         this.Nu = Nu || 2;
         this.Nv = Nv || 2;
 
@@ -71,46 +68,44 @@ export default class Toro {
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
 
-        gl.drawElements(gl.TRIANGLE_STRIP, this.num_elements, gl.UNSIGNED_SHORT, 0);
+        gl.drawElements(gl.LINE_STRIP, this.num_elements, gl.UNSIGNED_SHORT, 0);
+
     }
 
     /**
-     * Función que devuelve los vértices que definen un Toro
+     * Función que devuelve los vértices que definen un Cono
      */
     getVertices() {
 
         let vertices = [];
 
-        for (let i = 0; i < this.Nv + 1; i++) {
-            for (let j = 0; j < this.Nu; j++) {
-                vertices.push(-(this.R + this.r * Math.sin(2 * Math.PI * j / this.Nu)) * Math.sin(2 * Math.PI * i / this.Nv));
-                vertices.push(this.r * Math.cos(2 * Math.PI * j / this.Nu));
-                vertices.push((this.R + this.r * Math.sin(2 * Math.PI * j / this.Nu)) * Math.cos(2 * Math.PI * i / this.Nv));
+        for (let i = 1; i < this.Nv + 1; i++) {
+            for (let j = 1; j < this.Nu + 1; j++) {
+                vertices.push(this.radius * (this.Nv - i) / this.Nv * Math.cos(j * 2 * Math.PI / this.Nu));
+                vertices.push(-this.height + i * 2 * this.height / this.Nv);
+                vertices.push(this.radius * (this.Nv - i) / this.Nv * Math.sin(j * 2 * Math.PI / this.Nu));
             }
         }
+        vertices.push(0);
+        vertices.push(this.height);
+        vertices.push(0);
 
         return vertices;
     }
 
     /**
-     * Función que devuelve los indices de los vértices que forman las caras del Toro
+     * Función que devuelve los indices de los vértices que forman las caras del Cono
      */
     getFaces() {
 
         let faces = [];
 
-        // se generan los cuadriláteros correspondientes a las caras que forman el toro
-        for (let i = 0; i < this.Nv; i++) {
+        for (let i = 0; i < this.Nv - 1; i++) {
             for (let j = 0; j < this.Nu; j++) {
                 faces.push(j + i * this.Nu);
-                faces.push(j + (i + 1) * this.Nu);
-            }
-        }
-
-        for (let i = 0; i < this.Nv; i++) {
-            for (let j = 0; j < this.Nu; j++) {
-                faces.push((j + 1) % this.Nu + (i + 1) * this.Nu);
                 faces.push((j + 1) % this.Nu + i * this.Nu);
+                faces.push((j + 1) % this.Nu + (i + 1) * this.Nu);
+                faces.push(j + (i + 1) * this.Nu);
             }
         }
 

@@ -2,15 +2,25 @@
 import Vector3 from "./maths_CG/Vector3.js";
 import Matrix4 from "./maths_CG/Matrix4.js";
 
-import Cilindro from "./ejemplo_figuras/Cilindro.js";
-import Cono from "./ejemplo_figuras/Cono.js";
-import Dodecaedro from "./ejemplo_figuras/Dodecaedro.js";
-import Esfera from "./ejemplo_figuras/Esfera.js";
-import Icosaedro from "./ejemplo_figuras/Icosaedro.js";
-import Octaedro from "./ejemplo_figuras/Octaedro.js";
-import PrismaRectangular from "./ejemplo_figuras/PrismaRectangular.js";
-import Tetraedro from "./ejemplo_figuras/Tetraedro.js";
-import Toro from "./ejemplo_figuras/Toro.js";
+import Cilindro from "./solids/Cilindro.js";
+import Cono from "./solids/Cono.js";
+import Dodecaedro from "./solids/Dodecaedro.js";
+import Esfera from "./solids/Esfera.js";
+import Icosaedro from "./solids/Icosaedro.js";
+import Octaedro from "./solids/Octaedro.js";
+import PrismaRectangular from "./solids/PrismaRectangular.js";
+import Tetraedro from "./solids/Tetraedro.js";
+import Toro from "./solids/Toro.js";
+
+import CilindroW from "./wireframe/Cilindro.js";
+import ConoW from "./wireframe/Cono.js";
+import DodecaedroW from "./wireframe/Dodecaedro.js";
+import EsferaW from "./wireframe/Esfera.js";
+import IcosaedroW from "./wireframe/Icosaedro.js";
+import OctaedroW from "./wireframe/Octaedro.js";
+import PrismaRectangularW from "./wireframe/PrismaRectangular.js";
+import TetraedroW from "./wireframe/Tetraedro.js";
+import ToroW from "./wireframe/Toro.js";
 
 window.addEventListener("load", function(evt) {
     // se obtiene una referencia al canvas
@@ -32,6 +42,10 @@ window.addEventListener("load", function(evt) {
     // con el contenido leído, se crea un shader utilizando la función de utilería "createShader"
     let fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
 
+    let shaderCB = this.document.getElementById("wire_ckbx");
+
+    shaderCB.addEventListener("change", changeView, false);
+
     // se crea el programa que se enviara a la tarjeta de video, el cual está compuesto por los dos shader que se crearon anteriormente
     let program = createProgram(gl, vertexShader, fragmentShader);
 
@@ -39,6 +53,14 @@ window.addEventListener("load", function(evt) {
     let positionAttributeLocation = gl.getAttribLocation(program, "a_position");
     let colorUniformLocation = gl.getUniformLocation(program, "u_color");
     let PVM_matrixLocation = gl.getUniformLocation(program, "u_PVM_matrix");
+
+    function on() {
+        console.log("ON - Wireframe");
+    }
+
+    function off() {
+        console.log("OFF - Solid");
+    }
 
     // se crean y posicionan los modelos geométricos, uno de cada tipo
     let geometry = [
@@ -89,6 +111,54 @@ window.addEventListener("load", function(evt) {
         ),
     ];
 
+    let geometryW = [
+
+        new CilindroW(
+            gl, [1, 0, 0, 1],
+            2, 2, 16, 16,
+            Matrix4.translate(new Vector3(-5, 0, -5))
+        ),
+        new ConoW(
+            gl, [0, 1, 0, 1],
+            2, 2, 16, 16,
+            Matrix4.translate(new Vector3(0, 0, -5))
+        ),
+        new DodecaedroW(
+            gl, [0, 0, 1, 1],
+            2,
+            Matrix4.translate(new Vector3(5, 0, -5))
+        ),
+        new EsferaW(
+            gl, [0, 1, 1, 1],
+            2, 16, 16,
+            Matrix4.translate(new Vector3(-5, 0, 0))
+        ),
+        new IcosaedroW(gl, [1, 0, 1, 1],
+            2,
+            Matrix4.translate(new Vector3(0, 0, 0))
+        ),
+        new OctaedroW(
+            gl, [1, 1, 0, 1],
+            2,
+            Matrix4.translate(new Vector3(5, 0, 0))
+        ),
+        new PrismaRectangularW(
+            gl, [1, 0.2, 0.3, 1],
+            2, 3, 4,
+            Matrix4.translate(new Vector3(-5, 0, 5))
+        ),
+        new TetraedroW(
+            gl, [0.5, 0.5, 0.5, 1],
+            2,
+            Matrix4.translate(new Vector3(0, 0, 5))
+        ),
+        new ToroW(
+            gl, [0.25, 0.25, 0.25, 1],
+            4, 1, 16, 16,
+            Matrix4.translate(new Vector3(5, 0, 5))
+        ),
+    ];
+
     // se activa la prueba de profundidad, esto hace que se utilice el buffer de profundidad para determinar que píxeles se dibujan y cuales se descartan
     gl.enable(gl.DEPTH_TEST);
 
@@ -117,7 +187,6 @@ window.addEventListener("load", function(evt) {
     // recordando, un programa en este contexto es una pareja compuesta por un shader de vértices y uno de fragmentos
     gl.useProgram(program);
 
-    // se itera sobre cada objeto geométrico definido
     for (let i = 0; i < geometry.length; i++) {
         // se dibuja la geometría
         geometry[i].draw(
@@ -128,6 +197,46 @@ window.addEventListener("load", function(evt) {
             viewProjectionMatrix // la matriz de transformación de la vista y proyección
         );
     }
+
+    function changeView() {
+        if (shaderCB.checked) {
+            for (let i = 0; i < geometry.length; i++) {
+                // se dibuja la geometría
+                geometryW[i].draw(
+                    gl, // referencia al contexto de render de WebGL
+                    positionAttributeLocation, // referencia a attribute vec4 a_position;
+                    colorUniformLocation, // referencia a uniform vec4 u_color;
+                    PVM_matrixLocation, // referencia a uniform mat4 u_PVM_matrix;
+                    viewProjectionMatrix // la matriz de transformación de la vista y proyección
+                );
+            }
+            console.log("Wireframe");
+        } else {
+            for (let i = 0; i < geometry.length; i++) {
+                // se dibuja la geometría
+                geometry[i].draw(
+                    gl, // referencia al contexto de render de WebGL
+                    positionAttributeLocation, // referencia a attribute vec4 a_position;
+                    colorUniformLocation, // referencia a uniform vec4 u_color;
+                    PVM_matrixLocation, // referencia a uniform mat4 u_PVM_matrix;
+                    viewProjectionMatrix // la matriz de transformación de la vista y proyección
+                );
+            }
+            console.log("Solid");
+        }
+    }
+
+    // se itera sobre cada objeto geométrico definido
+    /*for (let i = 0; i < geometry.length; i++) {
+        // se dibuja la geometría
+        geometryW[i].draw(
+            gl, // referencia al contexto de render de WebGL
+            positionAttributeLocation, // referencia a attribute vec4 a_position;
+            colorUniformLocation, // referencia a uniform vec4 u_color;
+            PVM_matrixLocation, // referencia a uniform mat4 u_PVM_matrix;
+            viewProjectionMatrix // la matriz de transformación de la vista y proyección
+        );
+    }*/
 
 });
 
