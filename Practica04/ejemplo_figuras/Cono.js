@@ -24,6 +24,7 @@ export default class Cono {
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
 
+        // Se obtienen un arreglo de vertices
         let vertices = this.getVertices();
 
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
@@ -34,6 +35,7 @@ export default class Cono {
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
 
+        // se obtiene un arreglo de caras
         let faces = this.getFaces();
 
         gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(faces), gl.STATIC_DRAW);
@@ -68,12 +70,14 @@ export default class Cono {
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
 
+        // Se dinujo por medio de abanicos de triangulos
         gl.drawElements(gl.TRIANGLE_FAN, this.num_elements, gl.UNSIGNED_SHORT, 0);
 
     }
 
     /**
      * Función que devuelve los vértices que definen un Cono
+     * Utiliza funciones trigonometricas para irlos calculando
      */
     getVertices() {
 

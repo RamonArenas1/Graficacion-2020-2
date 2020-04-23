@@ -16,14 +16,16 @@ export default class Cilindro {
         this.height = (height || 1);
         this.Nu = Nu || 2;
         this.Nv = Nv || 2;
-
+        // se crea una matriz auxiliar para trabajar con ella en caso de no recibirse una transformación
         let matrixAux = new Matrix4(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-
+        
+        // se usa la transformacion recibida, en caso de no recibirse se usa la identidad obteida de la matriz auxiliar
         this.initial_transform = initial_transform || matrixAux.identity();
         this.positionBuffer = gl.createBuffer();
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
 
+        // se crea un arreglo de vertices
         let vertices = this.getVertices();
 
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
@@ -34,6 +36,7 @@ export default class Cilindro {
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
 
+        // se crea un arreglo de las caras
         let faces = this.getFaces();
 
         gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(faces), gl.STATIC_DRAW);
@@ -62,12 +65,14 @@ export default class Cilindro {
 
         gl.uniform4fv(colorUniformLocation, this.color);
 
+        // se crea una matriz combinando la de recibida con la de las transformaciones
         let projectionViewModelMatrix = Matrix4.multiply(projectionViewMatrix, this.initial_transform);
 
         gl.uniformMatrix4fv(PVM_matrixLocation, false, projectionViewModelMatrix.toArray());
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
 
+        // Se dinuja usando abanicos de triangulos
         gl.drawElements(gl.TRIANGLE_FAN, this.num_elements, gl.UNSIGNED_SHORT, 0);
     }
 
