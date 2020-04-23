@@ -42,6 +42,10 @@ window.addEventListener("load", function(evt) {
     // con el contenido leído, se crea un shader utilizando la función de utilería "createShader"
     let fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
 
+    let shaderCB = this.document.getElementById("wire_ckbx");
+
+    shaderCB.addEventListener("change", changeView, false);
+
     // se crea el programa que se enviara a la tarjeta de video, el cual está compuesto por los dos shader que se crearon anteriormente
     let program = createProgram(gl, vertexShader, fragmentShader);
 
@@ -49,6 +53,14 @@ window.addEventListener("load", function(evt) {
     let positionAttributeLocation = gl.getAttribLocation(program, "a_position");
     let colorUniformLocation = gl.getUniformLocation(program, "u_color");
     let PVM_matrixLocation = gl.getUniformLocation(program, "u_PVM_matrix");
+
+    function on() {
+        console.log("ON - Wireframe");
+    }
+
+    function off() {
+        console.log("OFF - Solid");
+    }
 
     // se crean y posicionan los modelos geométricos, uno de cada tipo
     let geometry = [
@@ -175,8 +187,47 @@ window.addEventListener("load", function(evt) {
     // recordando, un programa en este contexto es una pareja compuesta por un shader de vértices y uno de fragmentos
     gl.useProgram(program);
 
-    // se itera sobre cada objeto geométrico definido
     for (let i = 0; i < geometry.length; i++) {
+        // se dibuja la geometría
+        geometry[i].draw(
+            gl, // referencia al contexto de render de WebGL
+            positionAttributeLocation, // referencia a attribute vec4 a_position;
+            colorUniformLocation, // referencia a uniform vec4 u_color;
+            PVM_matrixLocation, // referencia a uniform mat4 u_PVM_matrix;
+            viewProjectionMatrix // la matriz de transformación de la vista y proyección
+        );
+    }
+
+    function changeView() {
+        if (shaderCB.checked) {
+            for (let i = 0; i < geometry.length; i++) {
+                // se dibuja la geometría
+                geometryW[i].draw(
+                    gl, // referencia al contexto de render de WebGL
+                    positionAttributeLocation, // referencia a attribute vec4 a_position;
+                    colorUniformLocation, // referencia a uniform vec4 u_color;
+                    PVM_matrixLocation, // referencia a uniform mat4 u_PVM_matrix;
+                    viewProjectionMatrix // la matriz de transformación de la vista y proyección
+                );
+            }
+            console.log("Wireframe");
+        } else {
+            for (let i = 0; i < geometry.length; i++) {
+                // se dibuja la geometría
+                geometry[i].draw(
+                    gl, // referencia al contexto de render de WebGL
+                    positionAttributeLocation, // referencia a attribute vec4 a_position;
+                    colorUniformLocation, // referencia a uniform vec4 u_color;
+                    PVM_matrixLocation, // referencia a uniform mat4 u_PVM_matrix;
+                    viewProjectionMatrix // la matriz de transformación de la vista y proyección
+                );
+            }
+            console.log("Solid");
+        }
+    }
+
+    // se itera sobre cada objeto geométrico definido
+    /*for (let i = 0; i < geometry.length; i++) {
         // se dibuja la geometría
         geometryW[i].draw(
             gl, // referencia al contexto de render de WebGL
@@ -185,7 +236,7 @@ window.addEventListener("load", function(evt) {
             PVM_matrixLocation, // referencia a uniform mat4 u_PVM_matrix;
             viewProjectionMatrix // la matriz de transformación de la vista y proyección
         );
-    }
+    }*/
 
 });
 
