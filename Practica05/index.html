@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <title>Page Title</title>
+  <script type="module" src="Main.js"></script>
+</head>
+
+<body>
+  <canvas id="the_canvas" width="800" height="600" style="border: 1px dotted gray;"></canvas>
+
+  <script id="2d-vertex-shader" type="vertex-shader">
+  precision mediump float;
+
+  attribute vec4 a_position;
+  attribute vec4 a_color;
+  attribute vec3 a_normal;
+  
+  uniform mat4 u_PVM_matrix;
+  uniform mat4 u_VM_matrix;
+  uniform vec3 u_light_position;
+
+  varying vec3 v_position;
+  varying vec4 v_color;
+  varying vec3 v_normal;
+
+  void main() {
+    v_position = vec3( u_VM_matrix * a_position );
+    v_normal = vec3( u_VM_matrix * vec4(a_normal, 0) );
+
+    v_color = a_color;
+
+    gl_Position = u_PVM_matrix * a_position;
+  }
+  </script>
+
+  <script id="2d-fragment-shader" type="fragment-shader">
+  precision mediump float;
+
+  uniform vec3 u_light_position;
+
+  varying vec3 v_position;
+  varying vec4 v_color;
+  varying vec3 v_normal;
+
+  void main() {
+    vec3 to_light = normalize( u_light_position - v_position );
+    vec3 fragment_normal = normalize(v_normal);
+
+    float cos_angle = max(dot(fragment_normal, to_light), 0.0);
+    gl_FragColor = vec4(vec3(v_color) * cos_angle, v_color.a);
+  }
+  </script>
+
+  <script id="2d-vertex-shader-spec" type="vertex-shader">
+  precision mediump float;
+
+  attribute vec4 a_position;
+  attribute vec4 a_color;
+  attribute vec3 a_normal;
+  
+  uniform mat4 u_PVM_matrix;
+  uniform mat4 u_VM_matrix;
+
+  // posición de la luz
+  uniform vec3 u_light_position;
+  // color de la luz
+  uniform vec3 u_light_color;
+  // brillo del objeto
+  uniform float u_shininess;
+  // color de la luz de ambiente
+  uniform vec3 u_ambient_color;
+
+  varying vec3 v_position;
+  varying vec4 v_color;
+  varying vec3 v_normal;
+
+  void main() {
+    v_position = vec3( u_VM_matrix * a_position );
+    v_normal = vec3( u_VM_matrix * vec4(a_normal, 0) );
+    v_color = a_color;
+
+    gl_Position = u_PVM_matrix * a_position;
+  }
+  </script>
+   
+  <script id="2d-fragment-shader-spec" type="fragment-shader">
+  precision mediump float;
+
+  // información de la luz
+  uniform vec3 u_light_position;
+  uniform vec3 u_light_color;
+  uniform vec3 u_ambient_color;
+  uniform float u_shininess;
+
+  varying vec3 v_position;
+  varying vec4 v_color;
+  varying vec3 v_normal;
+
+  /**
+   * Función que devuelve el aporte de color de la luz ambiental sobre el objeto
+   */
+  vec3 getAmbientColor(vec3 u_ambient_color, vec3 v_color) {
+    return u_ambient_color * v_color;
+  }
+
+  /**
+   * Función que calcula la reflexión difusa
+   */
+  vec3 getDiffuseColor(vec3 u_light_position, vec3 v_position, vec3 v_normal, vec4 v_color) {
+    vec3 to_light = normalize( u_light_position - v_position );
+    vec3 fragment_normal = normalize(v_normal);
+
+    float cos_angle = dot(fragment_normal, to_light);
+    cos_angle = clamp(cos_angle, 0.0, 1.0);
+
+    return vec3(v_color) * cos_angle;
+  }
+
+  /**
+   * Función que calcula la reflexión especular
+   */
+  vec3 getSpecularColor(vec3 u_light_position, vec3 u_light_color, vec3 v_position, vec3 v_normal, vec4 v_color) {
+    vec3 to_light = normalize( u_light_position - v_position );
+    vec3 fragment_normal = normalize(v_normal);
+
+    vec3 reflection = normalize( reflect(-to_light, fragment_normal) );	
+    // el vector de reflexión corresponde a: 2 * N * (N·direccion_de_la_luz) - direccion_de_la_luz
+    // vec3 reflection = normalize( 2.0 * fragment_normal * dot(fragment_normal, to_light) - to_light );
+
+    vec3 to_camera = normalize( vec3(0,0,0) - v_position );
+
+    float cos_angle = dot(reflection, to_camera);
+    cos_angle = clamp(cos_angle, 0.0, 1.0);
+    cos_angle = pow(cos_angle, u_shininess);
+
+    vec3 specular_color = u_light_color * cos_angle;
+    vec3 object_color = vec3(v_color) * (1.0 - cos_angle);
+
+    return specular_color;
+  }
+
+  void main() {
+    // color ambiental
+    vec3 ambient_color = getAmbientColor(u_ambient_color, vec3(v_color));
+
+    // color difuso
+    vec3 diffuse_color = getDiffuseColor(u_light_position, v_position, v_normal, v_color);
+
+    // color especular
+    vec3 specular_color = getSpecularColor(u_light_position, u_light_color, v_position, v_normal, v_color);
+    
+    gl_FragColor = vec4((ambient_color + diffuse_color + specular_color), v_color.a);
+  }
+  </script>
+
+  <br>
+  <input type="checkbox" id="spec_ckbx"><label for="wire_ckbx">Luz especular</label-->
+  
+  <!--input type="checkbox" id="draw_light" checked/><label>Dibuja luz </label>
+
+</body>
+
+</html>
