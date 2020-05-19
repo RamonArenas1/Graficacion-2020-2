@@ -94,7 +94,7 @@ export default class Toro {
         gl.uniformMatrix4fv(shader_locations.PVM_matrix, false, projectionViewModelMatrix.toArray());
 
         // instruccion que dibuja el arreglo recibido al gl 
-        gl.drawArrays(gl.TRIANGLE_STRIP, 0, this.num_elements);
+        gl.drawArrays(gl.TRIANGLES, 0, this.num_elements);
     }
 
     /**
@@ -131,8 +131,25 @@ export default class Toro {
 
         // se generan los cuadriláteros correspondientes a las caras que forman el toro
 
-
         for (let i = 0; i < this.Nv; i++) {
+            for (let j = 0; j < this.Nu; j++) {
+                faces.push(
+                    j + i * this.Nu,
+                    //j + (i + 1) * this.Nu,
+                    (j + 1) % this.Nu + (i + 1) * this.Nu,
+                    (j + 1) % this.Nu + i * this.Nu
+                );
+
+                faces.push(
+                    j + i * this.Nu,
+                    j + (i + 1) * this.Nu,
+                    (j + 1) % this.Nu + (i + 1) * this.Nu,
+                    //(j + 1) % this.Nu + i * this.Nu 
+                );
+            }
+        }
+
+        /* for (let i = 0; i < this.Nv; i++) {
             for (let j = 0; j < this.Nu; j++) {
                 faces.push(j + i * this.Nu);
             }
@@ -150,7 +167,7 @@ export default class Toro {
             for (let j = 0; j < this.Nu; j++) {
                 faces.push(j + (i + 1) * this.Nu);
             }
-        }
+        } */
 
         return faces;
     }
@@ -162,22 +179,20 @@ export default class Toro {
 
         let normals = [];
 
-        let v1, v2, v3, v4, n;
+        let v1, v2, v3, n;
 
-        for (let i = 0; i < vertices.length; i += 12) {
+        for (let i = 0; i < vertices.length; i += 9) {
 
             v1 = new Vector3(vertices[i], vertices[i + 1], vertices[i + 2]);
             v2 = new Vector3(vertices[i + 3], vertices[i + 4], vertices[i + 5]);
             v3 = new Vector3(vertices[i + 6], vertices[i + 7], vertices[i + 8]);
-            v4 = new Vector3(vertices[i + 9], vertices[i + 10], vertices[i + 11]);
 
             n = Vector3.cross(
                 Vector3.subtract(v1, v2),
-                Vector3.subtract(v2, v4)
+                Vector3.subtract(v2, v3)
             ).normalize();
 
             normals.push(
-                n.x, n.y, n.z,
                 n.x, n.y, n.z,
                 n.x, n.y, n.z,
                 n.x, n.y, n.z

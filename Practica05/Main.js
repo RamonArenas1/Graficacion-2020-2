@@ -137,7 +137,7 @@ window.addEventListener("load", function(evt) {
     let projectionMatrix = Matrix4.perspective(75 * Math.PI / 180, canvas.width / canvas.height, 1, 2000);
 
     // Se define el arreglo que contiene la posicion de la luz
-    let lightPos = [0, 3, 0, 0.5];
+    let lightPos = [0, 3, 0, .95];
 
     // Se definen las instrucciones para generar la luz en le canvas
     let lightPositionBuffer = gl.createBuffer();

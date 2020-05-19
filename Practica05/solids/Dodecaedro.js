@@ -88,7 +88,7 @@ export default class Dodecaedro {
         gl.uniformMatrix4fv(shader_locations.PVM_matrix, false, projectionViewModelMatrix.toArray());
 
         // instruccion que dibuja el arreglo recibido al gl 
-        gl.drawArrays(gl.TRIANGLE_FAN, 0, this.num_elements);
+        gl.drawArrays(gl.TRIANGLES, 0, this.num_elements);
     }
 
     /**
@@ -128,7 +128,7 @@ export default class Dodecaedro {
         let vertices = [];
 
         for (let i = 0; i < faces.length; i++) {
-            vertices.push(pos[faces[i] * 3], pos[faces[i] * 3 + 1], pos[faces[i] * 3 + 2]);
+            vertices.push(pos[faces[i] * 3 + 0], pos[faces[i] * 3 + 1], pos[faces[i] * 3 + 2]);
         }
 
         return vertices;
@@ -139,6 +139,55 @@ export default class Dodecaedro {
      */
     getFaces() {
         return [
+            0, 8, 10,
+            16, 0, 10,
+            2, 16, 10,
+
+            14, 4, 8,
+            12, 14, 8,
+            0, 12, 8,
+
+            4, 18, 6,
+            8, 4, 6,
+            10, 8, 6,
+
+            5, 19, 18,
+            14, 5, 18,
+            4, 14, 18,
+
+            1, 17, 3,
+            9, 1, 3,
+            11, 9, 3,
+
+            3, 13, 15,
+            11, 3, 15,
+            7, 11, 15,
+
+            9, 5, 14,
+            1, 9, 14,
+            12, 1, 14,
+
+            9, 11, 7,
+            5, 9, 7,
+            19, 5, 7,
+
+            1, 12, 0,
+            17, 1, 0,
+            16, 17, 0,
+
+            17, 16, 2,
+            3, 17, 2,
+            13, 3, 2,
+
+            13, 2, 10,
+            15, 13, 10,
+            6, 15, 10,
+
+            7, 15, 6,
+            19, 7, 6,
+            18, 19, 6,
+
+            /* 
             10, 8, 0, 16, 2,
             8, 4, 14, 12, 0,
             6, 18, 4, 8, 10, //
@@ -149,10 +198,11 @@ export default class Dodecaedro {
             14, 5, 9, 1, 12, //
             7, 11, 9, 5, 19, //
 
-            0, 1, 12, 17, 16, //
+            0, 12, 1, 17, 16, //
             2, 16, 17, 3, 13, //
             10, 2, 13, 15, 6, //
-            6, 15, 7, 19, 18, //
+            6, 15, 7, 19, 18, // 
+            */
 
         ]
     }
@@ -167,35 +217,21 @@ export default class Dodecaedro {
         let v1, v2, v3, v4, v5, n;
         let s1, s2, s3, s4;
 
-        for (let i = 0; i < vertices.length; i += 15) {
+        for (let i = 0; i < vertices.length; i += 9) {
 
             v1 = new Vector3(vertices[i + 0], vertices[i + 1], vertices[i + 2]);
             v2 = new Vector3(vertices[i + 3], vertices[i + 4], vertices[i + 5]);
             v3 = new Vector3(vertices[i + 6], vertices[i + 7], vertices[i + 8]);
-            v4 = new Vector3(vertices[i + 9], vertices[i + 10], vertices[i + 11]);
-            v5 = new Vector3(vertices[i + 12], vertices[i + 13], vertices[i + 14]);
 
             n = Vector3.cross(
                 Vector3.subtract(v1, v2),
-                Vector3.subtract(v3, v2)
-            ).normalize();
-
-            s1 = Vector3.cross(
-                Vector3.subtract(v2, v3),
-                Vector3.subtract(v4, v3)
-            ).normalize();
-
-            s2 = Vector3.cross(
-                Vector3.subtract(v4, v3),
-                Vector3.subtract(v5, v4)
+                Vector3.subtract(v2, v3)
             ).normalize();
 
             normals.push(
-                (((n.x + s1.x) / 2) + s2.x) / 2, (((n.y + s1.y) / 2) + s2.x) / 2, (((n.z + s1.z) / 2) + s2.x) / 2,
-                (((n.x + s1.x) / 2) + s2.x) / 2, (((n.y + s1.y) / 2) + s2.x) / 2, (((n.z + s1.z) / 2) + s2.x) / 2,
-                (((n.x + s1.x) / 2) + s2.x) / 2, (((n.y + s1.y) / 2) + s2.x) / 2, (((n.z + s1.z) / 2) + s2.x) / 2,
-                (((n.x + s1.x) / 2) + s2.x) / 2, (((n.y + s1.y) / 2) + s2.x) / 2, (((n.z + s1.z) / 2) + s2.x) / 2,
-                (((n.x + s1.x) / 2) + s2.x) / 2, (((n.y + s1.y) / 2) + s2.x) / 2, (((n.z + s1.z) / 2) + s2.x) / 2
+                n.x, n.y, n.z,
+                n.x, n.y, n.z,
+                n.x, n.y, n.z
             );
         }
 

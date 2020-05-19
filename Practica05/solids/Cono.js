@@ -91,7 +91,7 @@ export default class Cono {
         gl.uniformMatrix4fv(shader_locations.PVM_matrix, false, projectionViewModelMatrix.toArray());
 
         // instruccion que dibuja el arreglo recibido al gl 
-        gl.drawArrays(gl.TRIANGLE_FAN, 0, this.num_elements);
+        gl.drawArrays(gl.TRIANGLES, 0, this.num_elements);
     }
 
     /**
@@ -117,7 +117,7 @@ export default class Cono {
         let vertices = [];
 
         for (let i = 0; i < faces.length; i++) {
-            vertices.push(pos[faces[i] * 3], pos[faces[i] * 3 + 1], pos[faces[i] * 3 + 2]);
+            vertices.push(pos[faces[i] * 3 + 2], pos[faces[i] * 3 + 1], pos[faces[i] * 3 + 0]);
         }
 
         return vertices;
@@ -129,14 +129,18 @@ export default class Cono {
     getFaces() {
         let faces = [];
 
-        for (let i = 0; i < this.Nv; i++) {
-            for (let j = 0; j < this.Nu; j++) {
+        for (let j = 0; j < this.Nv; j++) {
+            for (let i = 0; i < this.Nu; i++) {
 
                 faces.push(i + (j + 1) * this.Nu); //4
                 faces.push(i + j * this.Nu); //1
                 faces.push((i + 1) % this.Nu + j * this.Nu); //2
-                faces.push((i + 1) % this.Nu + (j + 1) * this.Nu); //3
+                /* faces.push((i + 1) % this.Nu + (j + 1) * this.Nu); //3  */
 
+                faces.push(i + (j + 1) * this.Nu); //4
+                /* faces.push(i + j * this.Nu); //1 */
+                faces.push((i + 1) % this.Nu + j * this.Nu); //2
+                faces.push((i + 1) % this.Nu + (j + 1) * this.Nu); //3 
             }
         }
 
@@ -152,19 +156,18 @@ export default class Cono {
 
         let v1, v2, v3, n;
 
-        for (let i = 0; i < vertices.length; i += 12) {
+        for (let i = 0; i < vertices.length; i += 9) {
 
             v1 = new Vector3(vertices[i], vertices[i + 1], vertices[i + 2]);
             v2 = new Vector3(vertices[i + 3], vertices[i + 4], vertices[i + 5]);
             v3 = new Vector3(vertices[i + 6], vertices[i + 7], vertices[i + 8]);
 
             n = Vector3.cross(
-                Vector3.subtract(v2, v1),
+                Vector3.subtract(v1, v2),
                 Vector3.subtract(v2, v3)
             ).normalize();
 
             normals.push(
-                n.x, n.y, n.z,
                 n.x, n.y, n.z,
                 n.x, n.y, n.z,
                 n.x, n.y, n.z

@@ -91,7 +91,7 @@ export default class Esfera {
         gl.uniformMatrix4fv(shader_locations.PVM_matrix, false, projectionViewModelMatrix.toArray());
 
         // instruccion que dibuja el arreglo recibido al gl 
-        gl.drawArrays(gl.TRIANGLE_FAN, 0, this.num_elements);
+        gl.drawArrays(gl.TRIANGLES, 0, this.num_elements);
     }
 
     /**
@@ -148,19 +148,29 @@ export default class Esfera {
             faces.push(
                 0,
                 ((i + 1) % this.Nv) + 1,
-                (i % this.Nv) + 1
+                (i % this.Nv) + 1,
+
             );
         }
 
 
-
         // se generan los cuadriláteros correspondientes a las caras restantes
-        for (let i = 0; i < this.Nv - 1; i++) {
-            for (let j = 0; j < this.Nu; j++) {
-                faces.push((j + 1) % this.Nv + i * this.Nv); //2
-                faces.push((j + 1) % this.Nv + (i + 1) * this.Nv); //3
-                faces.push(j + (i + 1) * this.Nv); //4
-                faces.push(j + i * this.Nv); //1
+        for (let i = 0; i < this.Nv; i++) {
+            for (let j = -1; j < this.Nu; j++) {
+
+                faces.push(
+                    j + 1 + (i - 1) * this.Nv,
+                    (j + 1) % this.Nv + 1 + (i - 1) * this.Nv,
+                    (j + 1) % this.Nv + 1 + i * this.Nv,
+                    //j + 1 + i * this.Nv
+                );
+
+                faces.push(
+                    j + 1 + (i - 1) * this.Nv,
+                    //(j + 1) % this.Nv + 1 + (i - 1) * this.Nv,
+                    (j + 1) % this.Nv + 1 + i * this.Nv,
+                    j + 1 + i * this.Nv
+                );
 
 
             }
@@ -173,30 +183,23 @@ export default class Esfera {
 
         let normals = [];
 
-        let v1, v2, v3, v4, n, s1, s2;
+        let v1, v2, v3, n;
 
-        for (let i = 0; i < vertices.length; i += 12) {
+        for (let i = 0; i < vertices.length; i += 9) {
 
             v1 = new Vector3(vertices[i + 0], vertices[i + 1], vertices[i + 2]);
             v2 = new Vector3(vertices[i + 3], vertices[i + 4], vertices[i + 5]);
             v3 = new Vector3(vertices[i + 6], vertices[i + 7], vertices[i + 8]);
-            v4 = new Vector3(vertices[i + 9], vertices[i + 10], vertices[i + 11]);
 
-            s1 = Vector3.cross(
-                Vector3.subtract(v2, v1),
-                Vector3.subtract(v3, v2)
-            ).normalize();
-
-            s2 = Vector3.cross(
-                Vector3.subtract(v3, v2),
-                Vector3.subtract(v4, v3)
+            n = Vector3.cross(
+                Vector3.subtract(v1, v2),
+                Vector3.subtract(v2, v3)
             ).normalize();
 
             normals.push(
-                (s1.x + s2.x) / 2, (s1.y + s2.x) / 2, (s1.z + s2.x) / 2,
-                (s1.x + s2.x) / 2, (s1.y + s2.x) / 2, (s1.z + s2.x) / 2,
-                (s1.x + s2.x) / 2, (s1.y + s2.x) / 2, (s1.z + s2.x) / 2,
-                (s1.x + s2.x) / 2, (s1.y + s2.x) / 2, (s1.z + s2.x) / 2
+                n.x, n.y, n.z,
+                n.x, n.y, n.z,
+                n.x, n.y, n.z
             );
         }
 

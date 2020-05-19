@@ -91,7 +91,7 @@ export default class Cilindro {
         gl.uniformMatrix4fv(shader_locations.PVM_matrix, false, projectionViewModelMatrix.toArray());
 
         // instruccion que dibuja el arreglo recibido al gl 
-        gl.drawArrays(gl.TRIANGLE_FAN, 0, this.num_elements);
+        gl.drawArrays(gl.TRIANGLES, 0, this.num_elements);
     }
 
     /**
@@ -101,7 +101,7 @@ export default class Cilindro {
 
         let pos = [];
 
-        for (let i = 0; i < this.Nv - 1; i++) {
+        for (let i = -1; i < this.Nv; i++) {
             for (let j = 0; j < this.Nu; j++) {
                 pos.push(this.radius * Math.cos(j * 2 * Math.PI / this.Nu));
                 pos.push(-this.height + i * 2 * this.height / this.Nv);
@@ -125,7 +125,7 @@ export default class Cilindro {
     getFaces() {
         let faces = [];
 
-        for (let j = 0; j < this.Nv - 1; j++) {
+        for (let j = 0; j < this.Nv; j++) {
             for (let i = 0; i < this.Nu; i++) {
 
                 faces.push((j + 1) % this.Nu + i * this.Nu); //3
