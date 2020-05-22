@@ -17,7 +17,8 @@ import Toro from "./solids/Toro.js";
 
 
 window.addEventListener("load", function() {
-    //let shaderCB = this.document.getElementById("spec_ckbx");
+    //Variable que guarda la referencia a la checkbox con etiqueta especular
+    let shaderCB = this.document.getElementById("spec_ckbx");
     ImageLoader.load(
         [
             "./texturas/Cono.png",
@@ -48,14 +49,21 @@ window.addEventListener("load", function() {
             let fragmentShaderSource = document.getElementById("2d-fragment-shader").text;
             let fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
 
-            //Variable que guarda la referencia a la checkbox con etiqueta especular
-            //let shaderCB = this.document.getElementById("spec_ckbx");
+            // se obtiene una referencia al elemento con id="2d-vertex-shader" que se encuentra en el archivo index.html
+            let vertexShaderSourceS = document.getElementById("2d-vertex-shader-s").text;
+            let vertexShaderS = createShader(gl, gl.VERTEX_SHADER, vertexShaderSourceS);
+
+            //Referencia al script que representa el shader de fragmentos con iluminacion difusa
+            let fragmentShaderSourceS = document.getElementById("2d-fragment-shader-s").text;
+            let fragmentShaderS = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSourceS);
+
 
             //Instruccion que ejecutará la funcion change view cada vez que se active o desactive la checkbox
-            //shaderCB.addEventListener("change", changeView, false);
+            shaderCB.addEventListener("change", changeView, false);
 
             // se crea el programa que se enviara a la tarjeta de video, el cual está compuesto por los dos shader que se crearon anteriormente
             let program = createProgram(gl, vertexShader, fragmentShader);
+            let programS = createProgram(gl, vertexShaderS, fragmentShaderS);
 
 
             // se construye una referencia a los attributos definidos en el shader de iluminacion difusa
@@ -69,6 +77,20 @@ window.addEventListener("load", function() {
                 lightPosition: gl.getUniformLocation(program, "u_light_position"),
                 PVM_matrix: gl.getUniformLocation(program, "u_PVM_matrix"),
                 VM_matrix: gl.getUniformLocation(program, "u_VM_matrix"),
+
+
+            }
+
+            let shader_locations_s = {
+                positionAttribute: gl.getAttribLocation(programS, "a_position"),
+                colorAttribute: gl.getAttribLocation(programS, "a_color"),
+                normalAttribute: gl.getAttribLocation(programS, "a_normal"),
+
+                texcoordAttribute: gl.getAttribLocation(programS, "a_texcoord"),
+
+                lightPosition: gl.getUniformLocation(programS, "u_light_position"),
+                PVM_matrix: gl.getUniformLocation(programS, "u_PVM_matrix"),
+                VM_matrix: gl.getUniformLocation(programS, "u_VM_matrix"),
 
 
             }
@@ -105,11 +127,13 @@ window.addEventListener("load", function() {
                     2, 3, 4,
                     Matrix4.translate(new Vector3(-5, 0, 5))
                 ),
+
                 new Tetraedro(
                     gl, [0.5, 0.5, 0.5, 1],
                     2,
                     Matrix4.translate(new Vector3(0, 0, 5))
                 ),
+
                 new Toro(
                     gl, [0.25, 0.25, 0.25, 1],
                     4, 1, 16, 16,
@@ -153,7 +177,7 @@ window.addEventListener("load", function() {
             let projectionMatrix = Matrix4.perspective(75 * Math.PI / 180, canvas.width / canvas.height, 1, 2000);
 
             // Se define el arreglo que contiene la posicion de la luz
-            let lightPos = [0, 5, 0, 2];
+            let lightPos = [6, 5, 0, 1];
 
             // Se definen las instrucciones para generar la luz en le canvas
             let lightPositionBuffer = gl.createBuffer();
@@ -172,13 +196,13 @@ window.addEventListener("load", function() {
             //gl.useProgram(program);
 
             // instruccion que revisa si la checkbox esta activa o no
-            function draw() {
+            function draw(shader, p) {
                 gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
                 gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
                 // se genera una instancia del programa del shader
-                gl.useProgram(program);
+                gl.useProgram(p);
 
                 viewMatrix = camera.getMatrix();
 
@@ -201,13 +225,17 @@ window.addEventListener("load", function() {
 
                     // se dibuja la geometría
                     geometry[i].draw(
-                        gl, shader_locations, lightPos, texture, viewMatrix, projectionMatrix
+                        gl, shader, lightPos, texture, viewMatrix, projectionMatrix
                     );
                 }
 
             }
 
-            draw();
+            if (shaderCB.checked) {
+                draw(shader_locations_s, programS);
+            } else {
+                draw(shader_locations, program);
+            }
 
 
             let x = 0;
@@ -244,22 +272,16 @@ window.addEventListener("load", function() {
              */
             function mousemove(evt) {
                 camera.rotate(x, y, getMousePositionInCanvasX(evt), getMousePositionInCanvasY(evt));
-                draw();
+                if (shaderCB.checked) {
+                    draw(shader_locations_s, programS);
+                } else {
+                    draw(shader_locations, program);
+                }
             }
 
             /**
              * Función que obtiene las coordenadas del mouse
              */
-            /* function getMousePositionInCanvas(evt) {
-                // la función getBoundingClientRect permite obtener un objeto que tiene la posición y dimensiones del elemento desde el cual se llamo; esto es necesario para considerar la posición en la que se puede encontrar el canvas, ya que no siempre esta en el origen de la pantalla
-                const rect = canvas.getBoundingClientRect();
-
-                // las variables clientX y clientY tiene la posición del mouse respecto al origen de la pantalla, y para obtener las coordenadas dentro del canvas se debe restar la posición del elemento
-                const x = evt.clientX - rect.left;
-                const y = evt.clientY - rect.top;
-                return { x: x, y: y };
-            } */
-
             function getMousePositionInCanvasX(evt) {
                 // la función getBoundingClientRect permite obtener un objeto que tiene la posición y dimensiones del elemento desde el cual se llamo; esto es necesario para considerar la posición en la que se puede encontrar el canvas, ya que no siempre esta en el origen de la pantalla
                 const rect = canvas.getBoundingClientRect();
@@ -277,6 +299,14 @@ window.addEventListener("load", function() {
                 // las variables clientY tiene la posición del mouse respecto al origen de la pantalla, y para obtener las coordenadas dentro del canvas se debe restar la posición del elemento
                 const y = evt.clientY - rect.top;
                 return y;
+            }
+
+            function changeView() {
+                if (shaderCB.checked) {
+                    draw(shader_locations_s, programS);
+                } else {
+                    draw(shader_locations, program);
+                }
             }
         }
     )

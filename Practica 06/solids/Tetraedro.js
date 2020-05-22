@@ -84,10 +84,10 @@ export default class Tetraedro {
         gl.bindBuffer(gl.ARRAY_BUFFER, this.normalBuffer);
         gl.vertexAttribPointer(shader_locations.normalAttribute, 3, gl.FLOAT, false, 0, 0);
 
-        // se activa y se envía la información sobre el color del objeto geométrico
+        /* // se activa y se envía la información sobre el color del objeto geométrico
         gl.enableVertexAttribArray(shader_locations.colorAttribute);
         gl.bindBuffer(gl.ARRAY_BUFFER, this.colorBuffer);
-        gl.vertexAttribPointer(shader_locations.colorAttribute, 4, gl.FLOAT, false, 0, 0);
+        gl.vertexAttribPointer(shader_locations.colorAttribute, 4, gl.FLOAT, false, 0, 0); */
 
         // se activa y se envía la información de la matriz de vista
         let viewModelMatrix = Matrix4.multiply(viewMatrix, this.initial_transform);
@@ -127,7 +127,7 @@ export default class Tetraedro {
         let vertices = [];
 
         for (let i = 0; i < faces.length; i++) {
-            vertices.push(pos[faces[i] * 3], pos[faces[i] * 3 + 1], pos[faces[i] * 3 + 2]);
+            vertices.push(pos[faces[i] * 3 + 2], pos[faces[i] * 3 + 1], pos[faces[i] * 3 + 0]);
         }
 
         return vertices;

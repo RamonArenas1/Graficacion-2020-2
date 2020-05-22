@@ -41,20 +41,20 @@ export default class Esfera {
         gl.bindBuffer(gl.ARRAY_BUFFER, this.normalBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normals), gl.STATIC_DRAW);
 
-        // se crea un buffer de color, necesario para pintar las caras de la figura
-        this.colorBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.colorBuffer);
-        let colors = [];
+        /*  // se crea un buffer de color, necesario para pintar las caras de la figura
+         this.colorBuffer = gl.createBuffer();
+         gl.bindBuffer(gl.ARRAY_BUFFER, this.colorBuffer);
+         let colors = [];
 
-        // instruccion que asigna el color al arreglo endonde si no se recibe un color se asigna uno al azar
-        if (!color) {
-            color = [Math.random(), Math.random(), Math.random(), 1];
-        }
-        for (let i = 0; i < vertices.length / 3; i++) {
-            colors = colors.concat(color);
-        }
+         // instruccion que asigna el color al arreglo endonde si no se recibe un color se asigna uno al azar
+         if (!color) {
+             color = [Math.random(), Math.random(), Math.random(), 1];
+         }
+         for (let i = 0; i < vertices.length / 3; i++) {
+             colors = colors.concat(color);
+         }
 
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
+         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW); */
 
         this.num_elements = vertices.length / 3;
 

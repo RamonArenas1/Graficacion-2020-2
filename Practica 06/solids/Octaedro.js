@@ -38,7 +38,7 @@ export default class Octaedro {
         gl.bindBuffer(gl.ARRAY_BUFFER, this.normalBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normals), gl.STATIC_DRAW);
 
-        // se crea un buffer de color, necesario para pintar las caras de la figura
+        /* // se crea un buffer de color, necesario para pintar las caras de la figura
         this.colorBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, this.colorBuffer);
         let colors = [];
@@ -51,7 +51,7 @@ export default class Octaedro {
             colors = colors.concat(color);
         }
 
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW); */
 
         this.num_elements = this.vertices.length / 3;
 
