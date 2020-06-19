@@ -5,14 +5,22 @@ import Matrix4 from "./maths_CG/Matrix4.js";
 import Camara from "./camara/TrackballCamera.js";
 import ImageLoader from "./imageloader/ImageLoader.js";
 
-import PrismaRectangular from "./solids/PrismaRectangular.js";
 import Puerta from "./solids/Puerta.js";
+import Perilla from "./solids/Perilla.js";
+import Cuarto from "./solids/Cuarto.js";
+import Marco from "./solids/Marco.js";
+import ParedBaja from "./solids/ParedBaja.js";
+import Pared from "./solids/Pared.js";
+import ParedAlta from "./solids/ParedAlta.js";
 
 window.addEventListener("load", function() {
     ImageLoader.load(
         [
-            "./texturas/Prisma Rectangular.png",
             "./texturas/Puerta.png",
+            "./texturas/Perilla.png",
+            "./texturas/Cuarto.png",
+            "./texturas/Marco.png",
+            "./texturas/Pared Baja.png",
         ],
         function() {
             // se obtiene una referencia al canvas
@@ -52,15 +60,232 @@ window.addEventListener("load", function() {
             }
 
             // se crean y posicionan los modelos geométricos, uno de cada tipo
-            let geometry = [
-                new PrismaRectangular(
-                    gl,
-                    2, 3, 4,
-                    Matrix4.translate(new Vector3(-5, 0, 5))
-                ),
+            let cuartos = [
+                /******  Cuarto Completo 1 ******/
+                //Puertas
                 new Puerta(
-                    gl, Matrix4.translate(new Vector3(0, 0, 0))
-                )
+                    gl, Matrix4.translate(new Vector3(-7.5, 3.8132, 0))
+                ),
+                //Perillas
+                new Perilla(
+                    gl, Matrix4.translate(new Vector3(-7.018, 3.125, -1.2722))
+                ),
+                // Cuartos
+                new Cuarto(
+                    gl, Matrix4.translate(new Vector3(-19.102, 5, 0))
+                ),
+                // Marcos de Puertas
+                new Marco(
+                    gl, Matrix4.translate(new Vector3(-7.5, 4, 0))
+                ),
+                // Paredes Bajas
+                new ParedBaja(
+                    gl, Matrix4.translate(new Vector3(-7.4, 1.75, 6))
+                ),
+                new ParedBaja(
+                    gl, Matrix4.translate(new Vector3(-7.4, 1.75, -6))
+                ),
+                // Paredes
+                new Pared(
+                    gl, Matrix4.translate(new Vector3(-7.5, 6.8, 6))
+                ),
+                new Pared(
+                    gl, Matrix4.translate(new Vector3(-7.5, 6.8, -6))
+                ),
+                // Paredes Altas
+                new ParedAlta(
+                    gl, Matrix4.translate(new Vector3(-7.5, 9, 0))
+                ),
+
+
+
+                /******  Cuarto Completo 2 ******/
+                //Puertas
+                new Puerta(
+                    gl, Matrix4.translate(new Vector3(-7.5, 3.8132, -20))
+                ),
+                //Perillas
+                new Perilla(
+                    gl, Matrix4.translate(new Vector3(-7.018, 3.125, -21.2722))
+                ),
+                // Cuartos
+                new Cuarto(
+                    gl, Matrix4.translate(new Vector3(-19.102, 5, -20))
+                ),
+                // Marcos de Puertas
+                new Marco(
+                    gl, Matrix4.translate(new Vector3(-7.5, 4, -20))
+                ),
+                // Paredes Bajas
+                new ParedBaja(
+                    gl, Matrix4.translate(new Vector3(-7.4, 1.75, -26))
+                ),
+                new ParedBaja(
+                    gl, Matrix4.translate(new Vector3(-7.4, 1.75, -14))
+                ),
+                // Paredes
+                new Pared(
+                    gl, Matrix4.translate(new Vector3(-7.5, 6.8, -26))
+                ),
+                new Pared(
+                    gl, Matrix4.translate(new Vector3(-7.5, 6.8, -14))
+                ),
+                // Paredes Altas
+                new ParedAlta(
+                    gl, Matrix4.translate(new Vector3(-7.5, 9, -20))
+                ),
+
+
+                /******  Cuarto Completo 3 ******/
+                //Puertas
+                new Puerta(
+                    gl, Matrix4.translate(new Vector3(-7.5, 3.8132, -40))
+                ),
+                //Perillas
+                new Perilla(
+                    gl, Matrix4.translate(new Vector3(-7.018, 3.125, -41.2722))
+                ),
+                // Cuartos
+                new Cuarto(
+                    gl, Matrix4.translate(new Vector3(-19.102, 5, -40))
+                ),
+                // Marcos de Puertas
+                new Marco(
+                    gl, Matrix4.translate(new Vector3(-7.5, 4, -40))
+                ),
+                // Paredes Bajas
+                new ParedBaja(
+                    gl, Matrix4.translate(new Vector3(-7.4, 1.75, -46))
+                ),
+                new ParedBaja(
+                    gl, Matrix4.translate(new Vector3(-7.4, 1.75, -34))
+                ),
+                // Paredes
+                new Pared(
+                    gl, Matrix4.translate(new Vector3(-7.5, 6.8, -46))
+                ),
+                new Pared(
+                    gl, Matrix4.translate(new Vector3(-7.5, 6.8, -34))
+                ),
+                // Paredes Altas
+                new ParedAlta(
+                    gl, Matrix4.translate(new Vector3(-7.5, 9, -40))
+                ),
+
+            ];
+
+            let cuartosInv = [
+                /******  Cuarto Completo 1 ******/
+                //Puertas
+                new Puerta(
+                    gl, Matrix4.multiply(Matrix4.rotateY(180), Matrix4.translate(new Vector3(-7.5, 3.8132, 0)))
+                ),
+                //Perillas
+                new Perilla(
+                    gl, Matrix4.multiply(Matrix4.rotateY(180), Matrix4.translate(new Vector3(-7.018, 3.125, -1.2722)))
+                ),
+                // Cuartos
+                new Cuarto(
+                    gl, Matrix4.multiply(Matrix4.rotateY(180), Matrix4.translate(new Vector3(-19.102, 5, 0)))
+                ),
+                // Marcos de Puertas
+                new Marco(
+                    gl, Matrix4.multiply(Matrix4.rotateY(180), Matrix4.translate(new Vector3(-7.5, 4, 0)))
+                ),
+                // Paredes Bajas
+                new ParedBaja(
+                    gl, Matrix4.multiply(Matrix4.rotateY(180), Matrix4.translate(new Vector3(-7.4, 1.75, 6)))
+                ),
+                new ParedBaja(
+                    gl, Matrix4.multiply(Matrix4.rotateY(180), Matrix4.translate(new Vector3(-7.4, 1.75, -6)))
+                ),
+                // Paredes
+                new Pared(
+                    gl, Matrix4.multiply(Matrix4.rotateY(180), Matrix4.translate(new Vector3(-7.5, 6.8, 6)))
+                ),
+                new Pared(
+                    gl, Matrix4.multiply(Matrix4.rotateY(180), Matrix4.translate(new Vector3(-7.5, 6.8, -6)))
+                ),
+                // Paredes Altas
+                new ParedAlta(
+                    gl, Matrix4.multiply(Matrix4.rotateY(180), Matrix4.translate(new Vector3(-7.5, 9, 0)))
+                ),
+
+
+
+                /******  Cuarto Completo 2 ******/
+                //Puertas
+                new Puerta(
+                    gl, Matrix4.multiply(Matrix4.rotateY(180), Matrix4.translate(new Vector3(-7.5, 3.8132, 20)))
+                ),
+                //Perillas
+                new Perilla(
+                    gl, Matrix4.multiply(Matrix4.rotateY(180), Matrix4.translate(new Vector3(-7.018, 3.125, 21.2722)))
+                ),
+                // Cuartos
+                new Cuarto(
+                    gl, Matrix4.multiply(Matrix4.rotateY(180), Matrix4.translate(new Vector3(-19.102, 5, 20)))
+                ),
+                // Marcos de Puertas
+                new Marco(
+                    gl, Matrix4.multiply(Matrix4.rotateY(180), Matrix4.translate(new Vector3(-7.5, 4, 20)))
+                ),
+                // Paredes Bajas
+                new ParedBaja(
+                    gl, Matrix4.multiply(Matrix4.rotateY(180), Matrix4.translate(new Vector3(-7.4, 1.75, 26)))
+                ),
+                new ParedBaja(
+                    gl, Matrix4.multiply(Matrix4.rotateY(180), Matrix4.translate(new Vector3(-7.4, 1.75, 14)))
+                ),
+                // Paredes
+                new Pared(
+                    gl, Matrix4.multiply(Matrix4.rotateY(180), Matrix4.translate(new Vector3(-7.5, 6.8, 26)))
+                ),
+                new Pared(
+                    gl, Matrix4.multiply(Matrix4.rotateY(180), Matrix4.translate(new Vector3(-7.5, 6.8, 14)))
+                ),
+                // Paredes Altas
+                new ParedAlta(
+                    gl, Matrix4.multiply(Matrix4.rotateY(180), Matrix4.translate(new Vector3(-7.5, 9, 20)))
+                ),
+
+
+                /******  Cuarto Completo 3 ******/
+                //Puertas
+                new Puerta(
+                    gl, Matrix4.multiply(Matrix4.rotateY(180), Matrix4.translate(new Vector3(-7.5, 3.8132, 40)))
+                ),
+                //Perillas
+                new Perilla(
+                    gl, Matrix4.multiply(Matrix4.rotateY(180), Matrix4.translate(new Vector3(-7.018, 3.125, 41.2722)))
+                ),
+                // Cuartos
+                new Cuarto(
+                    gl, Matrix4.multiply(Matrix4.rotateY(180), Matrix4.translate(new Vector3(-19.102, 5, 40)))
+                ),
+                // Marcos de Puertas
+                new Marco(
+                    gl, Matrix4.multiply(Matrix4.rotateY(180), Matrix4.translate(new Vector3(-7.5, 4, 40)))
+                ),
+                // Paredes Bajas
+                new ParedBaja(
+                    gl, Matrix4.multiply(Matrix4.rotateY(180), Matrix4.translate(new Vector3(-7.4, 1.75, 46)))
+                ),
+                new ParedBaja(
+                    gl, Matrix4.multiply(Matrix4.rotateY(180), Matrix4.translate(new Vector3(-7.4, 1.75, 34)))
+                ),
+                // Paredes
+                new Pared(
+                    gl, Matrix4.multiply(Matrix4.rotateY(180), Matrix4.translate(new Vector3(-7.5, 6.8, 46)))
+                ),
+                new Pared(
+                    gl, Matrix4.multiply(Matrix4.rotateY(180), Matrix4.translate(new Vector3(-7.5, 6.8, 34)))
+                ),
+                // Paredes Altas
+                new ParedAlta(
+                    gl, Matrix4.multiply(Matrix4.rotateY(180), Matrix4.translate(new Vector3(-7.5, 9, 40)))
+                ),
+
             ];
 
             /* let texture = gl.createTexture();
@@ -84,7 +309,7 @@ window.addEventListener("load", function() {
             // se define la posición de la cámara (o el observador o el ojo)
             //let camera = new Vector3(0, 11, 7);
 
-            let camera = new Camara(new Vector3(0, 11, 7), new Vector3(0, 0, 0), new Vector3(0, 1, 0));
+            let camera = new Camara(new Vector3(0, 5, 15.5), new Vector3(0, 0, 0), new Vector3(0, 1, 0));
             // se define la posición del centro de interés, hacia donde observa la cámara
             //let coi = new Vector3(0, 0, 0);
             // se crea una matriz de cámara (o vista)
@@ -94,7 +319,7 @@ window.addEventListener("load", function() {
             let projectionMatrix = Matrix4.perspective(75 * Math.PI / 180, canvas.width / canvas.height, 1, 2000);
 
             // Se define el arreglo que contiene la posicion de la luz
-            let lightPos = [6, 2, 0, .6];
+            let lightPos = [0, 9.9, 0, 1];
 
             // Se definen las instrucciones para generar la luz en le canvas
             let lightPositionBuffer = gl.createBuffer();
@@ -123,10 +348,13 @@ window.addEventListener("load", function() {
 
                 viewMatrix = camera.getMatrix();
 
-                // ciclo que dibujara las figuras almacenadas en el arreglo geometry
-                for (let i = 0; i < geometry.length; i++) {
+                // ciclo que dibujara las figuras almacenadas en el arreglo cuartos
+                for (let i = 0; i < cuartos.length; i++) {
                     // se dibuja la geometría
-                    geometry[i].draw(
+                    cuartos[i].draw(
+                        gl, shader_locations, lightPos, viewMatrix, projectionMatrix
+                    );
+                    cuartosInv[i].draw(
                         gl, shader_locations, lightPos, viewMatrix, projectionMatrix
                     );
                 }
