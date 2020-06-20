@@ -2,7 +2,7 @@
 import Vector3 from "./maths_CG/Vector3.js";
 import Matrix4 from "./maths_CG/Matrix4.js";
 
-import Camara from "./camara/TrackballCamera.js";
+import Camara from "./camara/Camera.js";
 import ImageLoader from "./imageloader/ImageLoader.js";
 
 import Puerta from "./solids/Puerta.js";
@@ -27,6 +27,9 @@ window.addEventListener("load", function() {
         function() {
             // se obtiene una referencia al canvas
             let canvas = document.getElementById("the_canvas");
+
+            //canvas.width  = window.innerWidth;
+            //canvas.height = window.innerHeight;
 
             // se obtiene una referencia al contexto de render de WebGL
             const gl = canvas.getContext("webgl");
@@ -496,12 +499,9 @@ window.addEventListener("load", function() {
             // se activa la prueba de profundidad, esto hace que se utilice el buffer de profundidad para determinar que píxeles se dibujan y cuales se descartan
             gl.enable(gl.DEPTH_TEST);
 
-            // se define la posición de la cámara (o el observador o el ojo)
-            //let camera = new Vector3(0, 11, 7);
+            // se define la posición de la cámara (o el observador o el ojo) 
+            let camera = new Camara(new Vector3(0, 5, 15), new Vector3(0, 5, 5), new Vector3(0, 1, 0));
 
-            let camera = new Camara(new Vector3(0, 5, 15), new Vector3(0, 5, 0), new Vector3(0, 1, 0));
-            // se define la posición del centro de interés, hacia donde observa la cámara
-            //let coi = new Vector3(0, 0, 0);
             // se crea una matriz de cámara (o vista)
             let viewMatrix = camera.getMatrix();
 
@@ -557,6 +557,7 @@ window.addEventListener("load", function() {
                         gl, shader_locations, lightPos, viewMatrix, projectionMatrix
                     );
                 }
+                console.log(camera.pos);
             }
 
             draw();
@@ -565,8 +566,9 @@ window.addEventListener("load", function() {
             let y = 0;
 
             /**
+            /**
              * Manejador de eventos para cuando se presiona el botón del mouse dentro del canvas
-             */
+             *
             canvas.addEventListener("mousedown", (evt) => {
                 // se guarda la posición inicial del mouse
                 //initial_mouse_position = getMousePositionInCanvas(evt);
@@ -579,7 +581,7 @@ window.addEventListener("load", function() {
 
             /**
              * Manejador de eventos para cuando se libera el botón del mouse en cualquier parte de la ventana (window)
-             */
+             *
             window.addEventListener("mouseup", (evt) => {
                 // como se termina el movimiento del mouse, se actualizan los ángulos y la posición de la cámara
                 camera.finishMove(x, y, getMousePositionInCanvasX(evt), getMousePositionInCanvasY(evt));
@@ -588,7 +590,75 @@ window.addEventListener("load", function() {
                 //initial_mouse_position = null;
                 x = null;
                 y = null;
-            });
+            });*/
+
+            window.onkeydown = function(ev){
+                switch(ev.key){
+                    case "w": {                    
+                        camera.move("front");
+                        draw();
+                        break;
+                    }
+                    case "s": {                    
+                        camera.move("back");
+                        draw();
+                        break;
+                    }
+                    case "d": {                    
+                        camera.move("right");
+                        draw();
+                        break;
+                    }
+                    case "a": {                    
+                        camera.move("left");
+                        draw();
+                        break;
+                    }
+                    case "g": {
+                        camera.pause_mov = false;
+                        camera.setPos(camera.initial_pos);
+                        
+                        function animate(){
+                            
+                            let new_pos = Vector3.add(camera.pos, new Vector3 (0,0,-1/5));
+                            
+                            if(!Vector3.equals(new_pos,new Vector3 (0,5,-80))){
+                                
+                                requestAnimationFrame(animate);
+                                camera.setPos(new_pos);
+                                //camera.setCOI(Vector3.add(movement,this.coi));
+                                draw();
+                            }
+                        }
+
+                        animate();
+                        camera.pause_mov = true;
+                        break;
+                    }
+                    case "p": {                    
+                        camera.pause_mov = !camera.paise_mov;
+                        break;
+                    }
+                }    
+            }
+
+            canvas.onmousemove = function(ev){
+
+                let posx = ev.clientX;
+                let posy = canvas.height-ev.clientY;
+                camera.moveCamera(ev,posx,posy);
+
+                draw();
+                var x = ev.clientX;
+                var y = ev.clientY;
+                var coor = "Coordinates: (" + x + "," + y + ")";
+                document.getElementById("demo").innerHTML = coor;
+            }
+
+
+            canvas.onmouseout = function(ev) {
+                document.getElementById("demo").innerHTML = "";
+            }
 
             /**
              * Función que se encarga de llamar la función de rotación de la cámara, y redibuja la escena
