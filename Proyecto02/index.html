@@ -8,9 +8,12 @@
 </head>
 
 <body>
-  <canvas id="the_canvas" width="978" height="550" style="border: 1px dotted gray; background: #34495E;"></canvas>
+  <div style="text-align:center;">
+  <canvas id="the_canvas" width="800" height="450" style="border: 1px dotted gray; background: #34495E;"></canvas><p id="demo"></p>
 
-  <p id="demo"></p>
+  
+
+  </div>
 
   <audio src="/audio.mp3" autoplay loop></audio>
 
@@ -35,7 +38,7 @@
   // posición de la luz
   uniform vec3 u_light_position;
   // posición de la cámara
-  //uniform vec3 u_camera_position;
+  uniform vec3 u_camera_position;
 
   // coordenadas de textura que se envian al shader de fragmentos
   varying vec2 v_texcoord;
@@ -80,9 +83,6 @@
   // acceso a la información de la textura de normales
   uniform sampler2D u_texture_normal;
 
-  // se define la componente de la luz ambiental como un valor constante
-  vec3 ambient = vec3(0.1, 0.1, 0.0);
-
   void main() {
     // se normaliza la dirección de la luz
     vec3 to_light = normalize( v_tangent_light_pos );
@@ -96,7 +96,7 @@
     // se calcula el factor de atenuación, como el coseno del angulo formado entre la normal y la dirección de la luz
     float cos_angle = max(dot(fragment_normal, to_light), 0.0);
 
-    gl_FragColor = vec4(ambient + vec3(texture2D(u_texture, v_texcoord)) * cos_angle, 1.0);
+    gl_FragColor = vec4(vec3(texture2D(u_texture, v_texcoord)) * cos_angle, 1.0);
     
     // para observar unicamente el color de la textura se puede descomentar esta línea
     // gl_FragColor = texture2D(u_texture, v_texcoord);

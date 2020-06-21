@@ -36,7 +36,7 @@ window.addEventListener("load", function() {
             "./texturas/Cuarto.png",
             "./texturas/Piso_normal.jpg",
             "./texturas/Piso.jpg",
-            "./texturas/Skybox.png",
+            "./texturas/skybox.png",
         ],
         function() {
             // se obtiene una referencia al canvas
@@ -575,12 +575,28 @@ window.addEventListener("load", function() {
                 new Piso(
                     gl, Matrix4.translate(new Vector3(0, 0, -70))
                 ),
+                // Piso
+                new Piso(
+                    gl, Matrix4.translate(new Vector3(0, 0, -85))
+                ),
             ];
 
             let focos = [
                 // Focos
                 new Foco(
-                    gl, [0.956862, 0.968627, 0.035294, 1], Matrix4.translate(new Vector3(0, 10, 0))
+                    gl, [0.956862, 0.968627, 0.035294, 1], Matrix4.multiply(Matrix4.translate(new Vector3(0, 9.65, 0)), Matrix4.scale(new Vector3(0.25, 0.25, 0.25)))
+                ),
+                new Foco(
+                    gl, [0.956862, 0.968627, 0.035294, 1], Matrix4.multiply(Matrix4.translate(new Vector3(0, 9.65, -20)), Matrix4.scale(new Vector3(0.25, 0.25, 0.25)))
+                ),
+                new Foco(
+                    gl, [0.956862, 0.968627, 0.035294, 1], Matrix4.multiply(Matrix4.translate(new Vector3(0, 9.65, -40)), Matrix4.scale(new Vector3(0.25, 0.25, 0.25)))
+                ),
+                new Foco(
+                    gl, [0.956862, 0.968627, 0.035294, 1], Matrix4.multiply(Matrix4.translate(new Vector3(0, 9.65, -60)), Matrix4.scale(new Vector3(0.25, 0.25, 0.25)))
+                ),
+                new Foco(
+                    gl, [0.956862, 0.968627, 0.035294, 1], Matrix4.multiply(Matrix4.translate(new Vector3(0, 9.65, -80)), Matrix4.scale(new Vector3(0.25, 0.25, 0.25)))
                 ),
             ];
 
@@ -614,9 +630,9 @@ window.addEventListener("load", function() {
             let tmp_light_pos; */
 
             // Se definen las instrucciones para generar la luz en le canvas
-            /* let lightPositionBuffer = gl.createBuffer();
-            gl.bindBuffer(gl.ARRAY_BUFFER, lightPositionBuffer);
-            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(lightPos), gl.STATIC_DRAW); */
+            let u_ambien_ = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, u_ambien_);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(ambient), gl.STATIC_DRAW);
 
             // se limpia la pantalla con un color negro transparente
             gl.clearColor(0, 0, 0, 0);
@@ -635,16 +651,9 @@ window.addEventListener("load", function() {
 
                 gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-                gl.useProgram(programNM);
-                // se genera una instancia del programa del shader
-                for (let i = 0; i < pisos.length; i++) {
-                    // se dibuja la geometría
-                    pisos[i].draw(
-                        gl, shader_locationsNM, lightPos, viewMatrix, projectionMatrix, camera
-                    );
-                }
 
-                gl.useProgram(program);
+                let projectionViewMatrix = Matrix4.multiply(projectionMatrix, camera.getMatrix());
+                skybox.draw(gl, projectionViewMatrix);
 
                 delta_time = current_frame - last_frame;
                 last_frame = delta_time;
@@ -656,6 +665,17 @@ window.addEventListener("load", function() {
                 } else {
                     viewMatrix = security_camera.getMatrix();
                 }
+
+                gl.useProgram(programNM);
+                // se genera una instancia del programa del shader
+                for (let i = 0; i < pisos.length; i++) {
+                    // se dibuja la geometría
+                    pisos[i].draw(
+                        gl, shader_locationsNM, lightPos, viewMatrix, projectionMatrix
+                    );
+                }
+
+                gl.useProgram(program);
 
                 /**if (actual_projection){
                     projectionMatrix = projectionPersMatrix;
@@ -692,13 +712,11 @@ window.addEventListener("load", function() {
 
                 for (let i = 0; i < focos.length; i++) {
                     // se dibuja la geometría
+                    let newluz = i * (-20);
                     focos[i].draw(
-                        gl, shader_locations_spec, lightPos, viewMatrix, projectionMatrix
+                        gl, shader_locations_spec, [lightPos[0], lightPos[1], newluz, lightPos[3]], viewMatrix, projectionMatrix
                     );
                 }
-
-                let projectionViewMatrix2 = Matrix4.multiply(projectionMatrix2, camera.getMatrix());
-                skybox.draw(gl, projectionViewMatrix2);
 
                 requestAnimationFrame(draw);
             }
