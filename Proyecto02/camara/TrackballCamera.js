@@ -97,9 +97,9 @@ export default class TrackballCamera {
 
         // se cambia la posición de la cámara utilizando los ángulos anteriores para determinar las coordenadas polares
         this.setPos(new Vector3(
-            this.radius * Math.cos(phi) * Math.cos(theta),
-            this.radius * Math.sin(phi),
-            this.radius * Math.cos(phi) * Math.sin(theta)
+            (this.radius) * Math.cos(phi) * Math.cos(theta),
+            (this.radius) * Math.sin(phi),
+            (this.radius) * Math.cos(phi) * Math.sin(theta)
         ));
     }
 
