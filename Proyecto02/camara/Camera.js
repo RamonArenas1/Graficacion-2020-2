@@ -22,7 +22,7 @@ export default class Camera {
         //variables para movimiento con el teclado
         this.front = Vector3.subtract(this.coi,this.pos).normalize();
         this.front = new Vector3(this.front.x,0,this.front.z).normalize();
-        this.speed = 0.5;
+        this.speed = 1;
 
         //variables para movimiento de la camara
         this.lastx = 400;
@@ -82,7 +82,7 @@ export default class Camera {
 
     move(direction){
 
-        if ( !this.guide_mov){
+        if ( !this.pause_mov){
             let movement;
             let new_pos;    
             let new_coi;    
@@ -142,7 +142,7 @@ export default class Camera {
     * Recordamos que se inició las variables de lastx y lasty en el centro del canvas
     */
     moveCamera(ev,posx,posy){
-        if( !this.guide_mov){
+        if( !this.pause_mov){
             let offsetx = posx - this.lastx;
             let offsety = posy - this.lasty;
 

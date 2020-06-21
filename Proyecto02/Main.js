@@ -14,6 +14,12 @@ import Pared from "./solids/Pared.js";
 import ParedAlta from "./solids/ParedAlta.js";
 import Piso from "./solids/Piso.js";
 
+/**
+ * Varibales que controlan el tiempo para realizar el render de la escena
+ * */
+var last_frame = 0.0;
+var delta_time = 0.0;
+
 window.addEventListener("load", function() {
     ImageLoader.load(
         [
@@ -528,13 +534,18 @@ window.addEventListener("load", function() {
             //gl.useProgram(program);
 
             // instruccion que revisa si la checkbox esta activa o no
-            function draw() {
+            function draw(current_frame) {
                 gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
                 gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
                 // se genera una instancia del programa del shader
                 gl.useProgram(program);
+
+                delta_time = current_frame - last_frame;
+                last_frame = delta_time;
+
+                //camera.speed = 0.00005* delta_time;
 
                 viewMatrix = camera.getMatrix();
 
@@ -557,86 +568,41 @@ window.addEventListener("load", function() {
                         gl, shader_locations, lightPos, viewMatrix, projectionMatrix
                     );
                 }
-                console.log(camera.pos);
+                console.log(camera.speed);
+                requestAnimationFrame(draw); 
             }
 
-            draw();
+            requestAnimationFrame(draw);
 
             let x = 0;
             let y = 0;
 
-            /**
-            /**
-             * Manejador de eventos para cuando se presiona el botón del mouse dentro del canvas
-             *
-            canvas.addEventListener("mousedown", (evt) => {
-                // se guarda la posición inicial del mouse
-                //initial_mouse_position = getMousePositionInCanvas(evt);
-
-                x = getMousePositionInCanvasX(evt);
-                y = getMousePositionInCanvasY(evt);
-                // se agrega un manejador del evento de movimiento del mouse al canvas 
-                canvas.addEventListener("mousemove", mousemove);
-            });
-
-            /**
-             * Manejador de eventos para cuando se libera el botón del mouse en cualquier parte de la ventana (window)
-             *
-            window.addEventListener("mouseup", (evt) => {
-                // como se termina el movimiento del mouse, se actualizan los ángulos y la posición de la cámara
-                camera.finishMove(x, y, getMousePositionInCanvasX(evt), getMousePositionInCanvasY(evt));
-                // como se termina el movimiento del mouse, se elimina el manejador del evento de movimiento del mouse del canvas
-                canvas.removeEventListener("mousemove", mousemove);
-                //initial_mouse_position = null;
-                x = null;
-                y = null;
-            });*/
 
             window.onkeydown = function(ev){
                 switch(ev.key){
                     case "w": {                    
                         camera.move("front");
-                        draw();
                         break;
                     }
                     case "s": {                    
                         camera.move("back");
-                        draw();
                         break;
                     }
                     case "d": {                    
                         camera.move("right");
-                        draw();
                         break;
                     }
                     case "a": {                    
                         camera.move("left");
-                        draw();
                         break;
                     }
                     case "g": {
-                        camera.pause_mov = false;
-                        camera.setPos(camera.initial_pos);
-                        
-                        function animate(){
-                            
-                            let new_pos = Vector3.add(camera.pos, new Vector3 (0,0,-1/5));
-                            
-                            if(!Vector3.equals(new_pos,new Vector3 (0,5,-80))){
-                                
-                                requestAnimationFrame(animate);
-                                camera.setPos(new_pos);
-                                //camera.setCOI(Vector3.add(movement,this.coi));
-                                draw();
-                            }
-                        }
 
-                        animate();
-                        camera.pause_mov = true;
+                        camera.setPos(new Vector3 (0,5,15));
                         break;
                     }
                     case "p": {                    
-                        camera.pause_mov = !camera.paise_mov;
+                        camera.pause_mov = !camera.pause_mov;
                         break;
                     }
                 }    
@@ -648,7 +614,6 @@ window.addEventListener("load", function() {
                 let posy = canvas.height-ev.clientY;
                 camera.moveCamera(ev,posx,posy);
 
-                draw();
                 var x = ev.clientX;
                 var y = ev.clientY;
                 var coor = "Coordinates: (" + x + "," + y + ")";
@@ -660,37 +625,6 @@ window.addEventListener("load", function() {
                 document.getElementById("demo").innerHTML = "";
             }
 
-            /**
-             * Función que se encarga de llamar la función de rotación de la cámara, y redibuja la escena
-             */
-            function mousemove(evt) {
-                camera.rotate(x, y, getMousePositionInCanvasX(evt), getMousePositionInCanvasY(evt));
-
-                draw();
-
-            }
-
-            /**
-             * Función que obtiene las coordenadas del mouse
-             */
-            function getMousePositionInCanvasX(evt) {
-                // la función getBoundingClientRect permite obtener un objeto que tiene la posición y dimensiones del elemento desde el cual se llamo; esto es necesario para considerar la posición en la que se puede encontrar el canvas, ya que no siempre esta en el origen de la pantalla
-                const rect = canvas.getBoundingClientRect();
-
-                // las variables clientX tiene la posición del mouse respecto al origen de la pantalla, y para obtener las coordenadas dentro del canvas se debe restar la posición del elemento
-                const x = evt.clientX - rect.left;
-
-                return x;
-            }
-
-            function getMousePositionInCanvasY(evt) {
-                // la función getBoundingClientRect permite obtener un objeto que tiene la posición y dimensiones del elemento desde el cual se llamo; esto es necesario para considerar la posición en la que se puede encontrar el canvas, ya que no siempre esta en el origen de la pantalla
-                const rect = canvas.getBoundingClientRect();
-
-                // las variables clientY tiene la posición del mouse respecto al origen de la pantalla, y para obtener las coordenadas dentro del canvas se debe restar la posición del elemento
-                const y = evt.clientY - rect.top;
-                return y;
-            }
 
         }
     )
@@ -737,3 +671,5 @@ function createProgram(gl, vertexShader, fragmentShader) {
     console.log(gl.getProgramInfoLog(program));
     gl.deleteProgram(program);
 }
+
+
