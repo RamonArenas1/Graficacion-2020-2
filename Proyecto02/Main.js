@@ -590,17 +590,17 @@ window.addEventListener("load", function() {
             // se activa la prueba de profundidad, esto hace que se utilice el buffer de profundidad para determinar que píxeles se dibujan y cuales se descartan
             gl.enable(gl.DEPTH_TEST);
 
-            let security_camera = new Camara ( new Vector3(5, 10, -85), new Vector3(0, 5, 5), new Vector3(0, 1, 0));
+            let security_camera = new Camara(new Vector3(5, 5, -85), new Vector3(0, 5, 5), new Vector3(0, 1, 0));
 
             // se define la posición de la cámara (o el observador o el ojo) 
-            let camera = new Camara(new Vector3(0, 10, 15), new Vector3(0, 5, 0), new Vector3(0, 1, 0));
+            let camera = new Camara(new Vector3(0, 5, 15), new Vector3(0, 5, 0), new Vector3(0, 1, 0));
 
-          // se crea una matriz de cámara (o vista)
+            // se crea una matriz de cámara (o vista)
             let viewMatrix = camera.getMatrix();
 
             // se construye la matriz de proyección en perspectiva
-            let projectionPersMatrix = Matrix4.perspective(75 * Math.PI / 180, canvas.width / canvas.height, 1, 2000);   
-            let projectionOrtMatrix = Matrix4.ortho(-20, 20, -20 , 20 , 0 ,2000)
+            let projectionPersMatrix = Matrix4.perspective(75 * Math.PI / 180, canvas.width / canvas.height, 1, 2000);
+            let projectionOrtMatrix = Matrix4.ortho(-20, 20, -20, 20, 0, 2000)
 
             let projectionMatrix = projectionPersMatrix;
             let projectionMatrix2 = Matrix4.perspective(75 * Math.PI / 180, canvas.width / canvas.height, 1, 2000);
@@ -651,7 +651,7 @@ window.addEventListener("load", function() {
 
                 //camera.speed = 0.00005* delta_time;
 
-                if (actual_camera){
+                if (actual_camera) {
                     viewMatrix = camera.getMatrix();
                 } else {
                     viewMatrix = security_camera.getMatrix();
@@ -699,8 +699,8 @@ window.addEventListener("load", function() {
 
                 let projectionViewMatrix2 = Matrix4.multiply(projectionMatrix2, camera.getMatrix());
                 skybox.draw(gl, projectionViewMatrix2);
-              
-               requestAnimationFrame(draw); 
+
+                requestAnimationFrame(draw);
             }
 
             requestAnimationFrame(draw);
@@ -709,50 +709,58 @@ window.addEventListener("load", function() {
             let y = 0;
 
 
-            window.onkeydown = function(ev){
-                switch(ev.which){
-                    case 87: {                    
-                        camera.move("front");
-                        break;
-                    }
-                    case 83: {                    
-                        camera.move("back");
-                        break;
-                    }
-                    case 68: {                    
-                        camera.move("right");
-                        break;
-                    }
-                    case 65: {                    
-                        camera.move("left");
-                        break;
-                    }
-                    case 71: {
+            window.onkeydown = function(ev) {
+                switch (ev.which) {
+                    case 87:
+                        {
+                            camera.move("front");
+                            break;
+                        }
+                    case 83:
+                        {
+                            camera.move("back");
+                            break;
+                        }
+                    case 68:
+                        {
+                            camera.move("right");
+                            break;
+                        }
+                    case 65:
+                        {
+                            camera.move("left");
+                            break;
+                        }
+                    case 71:
+                        {
 
-                        camera.setPos(new Vector3 (0,5,15));
-                        break;
-                    }
-                    case 27: {                    
-                        camera.pause_mov = !camera.pause_mov;
-                        break;
-                    }
-                    case 67: {   
-                        camera.pause_mov = !camera.pause_mov;                 
-                        actual_camera = !actual_camera;
-                        break;
-                    }
-                    case 80: {
-                        //actual_projection = !actual_camera;
-                        break;
-                    } 
-                }    
+                            camera.setPos(new Vector3(0, 5, 15));
+                            break;
+                        }
+                    case 27:
+                        {
+                            camera.pause_mov = !camera.pause_mov;
+                            break;
+                        }
+                    case 67:
+                        {
+                            camera.pause_mov = !camera.pause_mov;
+                            actual_camera = !actual_camera;
+                            break;
+                        }
+                    case 80:
+                        {
+                            //actual_projection = !actual_camera;
+                            break;
+                        }
+                }
             }
 
-            canvas.onmousemove = function(ev){
+            canvas.onmousemove = function(ev) {
 
                 let posx = ev.clientX;
-                let posy = canvas.height-ev.clientY;
-                camera.moveCamera(ev,posx,posy);
+                let posy = canvas.height - ev.clientY;
+                camera.moveCamera(ev, posx, posy);
 
                 var x = ev.clientX;
                 var y = ev.clientY;
@@ -811,5 +819,3 @@ function createProgram(gl, vertexShader, fragmentShader) {
     console.log(gl.getProgramInfoLog(program));
     gl.deleteProgram(program);
 }
-
-
