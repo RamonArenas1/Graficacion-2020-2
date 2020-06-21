@@ -20,6 +20,9 @@ import Piso from "./solids/Piso.js";
 var last_frame = 0.0;
 var delta_time = 0.0;
 
+var actual_camera = true;
+var actual_projection = true;
+
 window.addEventListener("load", function() {
     ImageLoader.load(
         [
@@ -508,11 +511,17 @@ window.addEventListener("load", function() {
             // se define la posición de la cámara (o el observador o el ojo) 
             let camera = new Camara(new Vector3(0, 5, 15), new Vector3(0, 5, 5), new Vector3(0, 1, 0));
 
+            let security_camera = new Camara ( new Vector3(5, 10, -85), new Vector3(0, 5, 5), new Vector3(0, 1, 0));
+
             // se crea una matriz de cámara (o vista)
             let viewMatrix = camera.getMatrix();
 
             // se construye la matriz de proyección en perspectiva
-            let projectionMatrix = Matrix4.perspective(75 * Math.PI / 180, canvas.width / canvas.height, 1, 2000);
+            let projectionPersMatrix = Matrix4.perspective(75 * Math.PI / 180, canvas.width / canvas.height, 1, 2000);
+            
+            let projectionOrtMatrix = Matrix4.ortho(-20, 20, -20 , 20 , 0 ,2000)
+
+            let projectionMatrix = projectionPersMatrix;
 
             // Se define el arreglo que contiene la posicion de la luz
             let lightPos = [0, 9.9, 0, .5];
@@ -547,7 +556,17 @@ window.addEventListener("load", function() {
 
                 //camera.speed = 0.00005* delta_time;
 
-                viewMatrix = camera.getMatrix();
+                if (actual_camera){
+                    viewMatrix = camera.getMatrix();
+                } else {
+                    viewMatrix = security_camera.getMatrix();
+                }
+
+                /**if (actual_projection){
+                    projectionMatrix = projectionPersMatrix;
+                } else {
+                    projectionMatrix = projectionOrtMatrix;
+                }*/
 
                 // ciclo que dibujara las figuras almacenadas en el arreglo cuartos
                 for (let i = 0; i < cuartos.length; i++) {
@@ -568,7 +587,6 @@ window.addEventListener("load", function() {
                         gl, shader_locations, lightPos, viewMatrix, projectionMatrix
                     );
                 }
-                console.log(camera.speed);
                 requestAnimationFrame(draw); 
             }
 
@@ -579,32 +597,41 @@ window.addEventListener("load", function() {
 
 
             window.onkeydown = function(ev){
-                switch(ev.key){
-                    case "w": {                    
+                switch(ev.which){
+                    case 87: {                    
                         camera.move("front");
                         break;
                     }
-                    case "s": {                    
+                    case 83: {                    
                         camera.move("back");
                         break;
                     }
-                    case "d": {                    
+                    case 68: {                    
                         camera.move("right");
                         break;
                     }
-                    case "a": {                    
+                    case 65: {                    
                         camera.move("left");
                         break;
                     }
-                    case "g": {
+                    case 71: {
 
                         camera.setPos(new Vector3 (0,5,15));
                         break;
                     }
-                    case "p": {                    
+                    case 27: {                    
                         camera.pause_mov = !camera.pause_mov;
                         break;
                     }
+                    case 67: {   
+                        camera.pause_mov = !camera.pause_mov;                 
+                        actual_camera = !actual_camera;
+                        break;
+                    }
+                    case 80: {
+                        //actual_projection = !actual_camera;
+                        break;
+                    } 
                 }    
             }
 

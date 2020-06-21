@@ -33,7 +33,6 @@ export default class Camera {
 
         //flag para verificar si la camara esta en recorrido automatico
         this.pause_mov = false
-        this.initial_pos = this.pos;
 
     }
 
