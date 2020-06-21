@@ -10,9 +10,9 @@ export default class Marco {
      */
     constructor(gl, initial_transform) {
 
-        let matrixAux = new Matrix4(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+        let matrixAux = new Vector3(0, 0, 0);
 
-        this.initial_transform = initial_transform || matrixAux.identity();
+        this.initial_transform = initial_transform || matrixAux;
 
         let vertices = this.getVertices();
 
@@ -37,9 +37,12 @@ export default class Marco {
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.vertices), gl.STATIC_DRAW);
 
         this.texture = gl.createTexture();
+        gl.activeTexture(gl.TEXTURE3);
         gl.bindTexture(gl.TEXTURE_2D, this.texture);
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, ImageLoader.getImage("./texturas/Marco.png"));
-        gl.generateMipmap(gl.TEXTURE_2D);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, ImageLoader.getImage("./texturas/Puerta.png"));
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
         this.uv = this.getUV(this.vertices);
         this.UVBuffer = gl.createBuffer();
@@ -63,7 +66,9 @@ export default class Marco {
      */
     draw(gl, shader_locations, lightPos, viewMatrix, projectionMatrix) {
 
-        gl.bindTexture(gl.TEXTURE_2D, this.texture);
+        //gl.bindTexture(gl.TEXTURE_2D, this.texture);
+
+        gl.uniform1i(shader_locations.u_texture, 3);
 
         gl.enableVertexAttribArray(shader_locations.positionAttribute);
         gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
@@ -92,8 +97,6 @@ export default class Marco {
 
         gl.drawArrays(gl.TRIANGLES, 0, this.num_elements);
     }
-
-
 
     getVertices() {
         return [ //
@@ -339,5 +342,111 @@ export default class Marco {
         }
 
         return uv;
+    }
+
+    getTangents(vertices, uv, normals) {
+        let v0, v1, v2;
+        let uv0, uv1, uv2;
+        let delta_pos_1, delta_pos_2;
+        let delta_uv_1, delta_uv_2;
+        let r, div;
+        let tangent, bitangent;
+        let tangents = [];
+        let bitangents = [];
+        // se va a iterar sobre grupos de tres vertices, ya que estos forman un triángulo
+        for (let i = 0; i < vertices.length / 3; i += 3) {
+            // se construye el primer vertices de la cara
+            v0 = new Vector3(
+                vertices[i * 3],
+                vertices[i * 3 + 1],
+                vertices[i * 3 + 2]
+            );
+            // se construye el segundo vertices de la cara
+            v1 = new Vector3(
+                vertices[(i + 1) * 3],
+                vertices[(i + 1) * 3 + 1],
+                vertices[(i + 1) * 3 + 2]
+            );
+            // se construye el tercer vertices de la cara
+            v2 = new Vector3(
+                vertices[(i + 2) * 3],
+                vertices[(i + 2) * 3 + 1],
+                vertices[(i + 2) * 3 + 2]
+            );
+
+            // se construyen vectores que contienen la posición de las coordenadas uv
+            uv0 = new Vector3(uv[i * 2], uv[i * 2 + 1], 0);
+            uv1 = new Vector3(uv[(i + 1) * 2], uv[(i + 1) * 2 + 1], 0);
+            uv2 = new Vector3(uv[(i + 2) * 2], uv[(i + 2) * 2 + 1], 0);
+
+            // se calculan dos vectores de dirección que se encuentran sobre el plano definido por la cara
+            delta_pos_1 = Vector3.subtract(v1, v0);
+            delta_pos_2 = Vector3.subtract(v2, v0);
+
+            // se calculan dos vectores de dirección que se encuentran sobre el plano uv
+            delta_uv_1 = Vector3.subtract(uv1, uv0);
+            delta_uv_2 = Vector3.subtract(uv2, uv0);
+
+            // se calcula el vector tangente como:
+            // T = (delta_pos_1 * delta_uv_2.y - delta_pos_2 * delta_uv_1.y) / (delta_uv_1.x * delta_uv_2.y - delta_uv_2.x * delta_uv_1.y);
+            // y el vector bitangente como:
+            // B = (delta_pos_2 * delta_uv_1.x - delta_pos_1 * delta_uv_2.x) / (delta_uv_1.x * delta_uv_2.y - delta_uv_2.x * delta_uv_1.y);
+            div = (delta_uv_1.x * delta_uv_2.y - delta_uv_2.x * delta_uv_1.y);
+            r = (div <= 0.000001) ? 1 : (1 / div);
+
+            tangent = Vector3.subtract(
+                delta_pos_1.scalar(delta_uv_2.y),
+                delta_pos_2.scalar(delta_uv_1.y),
+            );
+            tangent = tangent.scalar(r).normalize();
+
+            bitangent = Vector3.subtract(
+                delta_pos_2.scalar(delta_uv_1.x),
+                delta_pos_1.scalar(delta_uv_2.x),
+            );
+            bitangent = bitangent.scalar(r).normalize();
+
+            // se almacenan los valores de los vectores tangente y bitangente
+            tangents.push(
+                tangent.x, tangent.y, tangent.z,
+                tangent.x, tangent.y, tangent.z,
+                tangent.x, tangent.y, tangent.z,
+            );
+            bitangents.push(
+                bitangent.x, bitangent.y, bitangent.z,
+                bitangent.x, bitangent.y, bitangent.z,
+                bitangent.x, bitangent.y, bitangent.z,
+            );
+        }
+
+        let tmp, tmp_T, tmp_N;
+        for (let i = 0, l = tangents.length / 3; i < l; i++) {
+            tmp_T = new Vector3(
+                tangents[i * 3],
+                tangents[i * 3 + 1],
+                tangents[i * 3 + 2]
+            );
+            tmp_N = new Vector3(
+                normals[i * 3],
+                normals[i * 3 + 1],
+                normals[i * 3 + 2]
+            );
+
+            tmp = Vector3.subtract(
+                tmp_T,
+                tmp_N.scalar(
+                    Vector3.dot(tmp_N, tmp_T)
+                )
+            ).normalize();
+
+            tangents[i * 3] = tmp.x;
+            tangents[i * 3 + 1] = tmp.y;
+            tangents[i * 3 + 2] = tmp.z;
+        }
+
+        return {
+            tangentes: tangents,
+            bitangentes: bitangents
+        }
     }
 }
