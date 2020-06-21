@@ -10,7 +10,100 @@
 <body>
   <canvas id="the_canvas" width="978" height="550" style="border: 1px dotted gray; background: #34495E;"></canvas>
 
-  <script id="2d-vertex-shader" type="vertex-shader">
+  <audio src="/audio.mp3" autoplay loop></audio>
+
+  <script id="2d-vertex-shader-nm" type="vertex-shader">
+  precision mediump float;
+
+  // posición de los vértices
+  attribute vec4 a_position;
+  // coordenadas de textura de los vértices
+  attribute vec2 a_texcoord;
+  // vector normal asociado a cada vértice
+  attribute vec3 a_normal;
+  // vector tangente asociado a cada vértice
+  attribute vec3 a_tangent;
+  // vector bitangente asociado a cada vértice
+  attribute vec3 a_bitangent;
+
+  // matriz de transformación del modelo
+  uniform mat4 u_M_matrix;
+  // matriz de transformación del modelos, la vista y la proyección
+  uniform mat4 u_PVM_matrix;
+  // posición de la luz
+  uniform vec3 u_light_position;
+  // posición de la cámara
+  //uniform vec3 u_camera_position;
+
+  // coordenadas de textura que se envian al shader de fragmentos
+  varying vec2 v_texcoord;
+  // posición de la luz
+  varying vec3 v_tangent_light_pos;
+  varying vec3 v_tangent_camera_pos;
+
+  void main() {
+    // se construyen los vectores que determinan una transformación de cambio de base al espacio tangente de la cara
+    // se multiplican por la transformación del modelo, para que este ubicados y orientados correctamente los vectores
+    // hay que recordad que una posición tiene en la componente w un valor distinto de 0, por lo general 1; mientras que los vectores tienen un valor de 0 para la componente w
+    vec3 T = normalize(vec3(u_M_matrix * vec4(a_tangent, 0.0)));
+    vec3 B = normalize(vec3(u_M_matrix * vec4(a_bitangent, 0.0)));
+    vec3 N = normalize(vec3(u_M_matrix * vec4(a_normal, 0.0)));
+
+    // se crea la matriz tomando como base los vectores construidos
+    mat3 TBN = mat3(
+      T.x, B.x, N.x,
+      T.y, B.y, N.y,
+      T.z, B.z, N.z
+    );
+    // se transforma el vector de dirección de la luz con la matriz de transformación del espacio tangente, para que este expresada en el mismo sistema de coordenadas que las normales y se puedan realizar los cálculos en el shader de fragmentos
+    v_tangent_light_pos = TBN * (u_light_position - vec3(u_M_matrix * a_position));
+
+    // se transforma la posición de los vértices
+    gl_Position = u_PVM_matrix * a_position;
+    // se almacena la información de las coordenadas de textura, para que sean utilizadas en el shader de fragmentos
+    v_texcoord = a_texcoord;
+  }
+  </script>
+   
+  <script id="2d-fragment-shader-nm" type="fragment-shader">
+  precision mediump float;
+
+  // las coordenadas de textura de la cara que se esta dibujando
+  varying vec2 v_texcoord;
+  // la dirección de la luz, expresada en el espacio tangente
+  varying vec3 v_tangent_light_pos;
+
+  // acceso a la información de la textura de color
+  uniform sampler2D u_texture;
+  // acceso a la información de la textura de normales
+  uniform sampler2D u_texture_normal;
+
+  // se define la componente de la luz ambiental como un valor constante
+  vec3 ambient = vec3(0.1, 0.1, 0.0);
+
+  void main() {
+    // se normaliza la dirección de la luz
+    vec3 to_light = normalize( v_tangent_light_pos );
+
+    // se obtiene la información de la normal del fragmento, la cual esta almacenada en una textura
+    vec3 fragment_normal = texture2D(u_texture_normal, v_texcoord).rgb;
+    
+    // los valores de la textura de normales están almacenados como valores rgb, es decir, valores en el intervalo [0,1]; pero los valores códificados son los de vectores normales, los cuales se encuentran en el intervalo [-1,1], por lo que hay que ajustar el intervalo de valores para poder utilizar las normales
+    fragment_normal = normalize(fragment_normal * 2.0 - 1.0);
+
+    // se calcula el factor de atenuación, como el coseno del angulo formado entre la normal y la dirección de la luz
+    float cos_angle = max(dot(fragment_normal, to_light), 0.0);
+
+    gl_FragColor = vec4(ambient + vec3(texture2D(u_texture, v_texcoord)) * cos_angle, 1.0);
+    
+    // para observar unicamente el color de la textura se puede descomentar esta línea
+    // gl_FragColor = texture2D(u_texture, v_texcoord);
+  }
+  </script>
+
+<!-- ////////////////// Shaders Sin mapa de normales //////////////////////// -->
+
+<script id="2d-vertex-shader" type="vertex-shader">
   precision mediump float;
 
   attribute vec4 a_position;
@@ -29,6 +122,8 @@
   
   // variable para comunicar las coordenadas de textura entre el shader de vértices y el shader de fragmentos
   varying vec2 v_texcoord;
+
+  uniform vec3 u_ambient;
 
   void main() {
     v_position = vec3( u_VM_matrix * a_position );
@@ -52,13 +147,16 @@
   varying vec4 v_color;
   varying vec3 v_normal;
 
+  // se define la componente de la luz ambiental como un valor constante
+  uniform vec3 u_ambient;
+
   // variable donde se reciben las coordenadas de textura de los vértices que forman un polígono
   varying vec2 v_texcoord;
   // objeto que se encarga de obtener la información de color de los píxeles de la imagen
   uniform sampler2D u_texture;
 
   void main() {
-    vec3 to_light = normalize( u_light_position - v_position );
+    vec3 to_light = normalize( u_light_position - v_position);
     vec3 fragment_normal = v_normal;
 
     // los valores de la textura de normales están almacenados como valores rgb, es decir, valores en el intervalo [0,1]; pero los valores códificados son los de vectores normales, los cuales se encuentran en el intervalo [-1,1], por lo que hay que ajustar el intervalo de valores para poder utilizar las normales
@@ -67,12 +165,113 @@
 
     float cos_angle = max(dot(fragment_normal, to_light), 0.0);
 
-    gl_FragColor = vec4(vec3(texture2D(u_texture, v_texcoord)) * cos_angle, 1.0);
+    gl_FragColor = vec4(u_ambient + vec3(texture2D(u_texture, v_texcoord)) * cos_angle, 1.0);
     // la función texture2D se encarga de relacionar el sampler2D u_texture con de las coordenadas uv del polígono
     //gl_FragColor = texture2D(u_texture, v_texcoord);
   }
   </script>
 
+  <script id="2d-vertex-shader-spec" type="vertex-shader">
+  precision mediump float;
+
+  attribute vec4 a_position;
+  attribute vec4 a_color;
+  attribute vec3 a_normal;
+  
+  uniform mat4 u_PVM_matrix;
+  uniform mat4 u_VM_matrix;
+
+  // posición de la luz
+  uniform vec3 u_light_position;
+  // color de la luz
+  uniform vec3 u_light_color;
+  // brillo del objeto
+  uniform float u_shininess;
+  // color de la luz de ambiente
+  uniform vec3 u_ambient_color;
+
+  varying vec3 v_position;
+  varying vec4 v_color;
+  varying vec3 v_normal;
+
+  void main() {
+    v_position = vec3( u_VM_matrix * a_position );
+    v_normal = vec3( u_VM_matrix * vec4(a_normal, 0) );
+    v_color = a_color;
+
+    gl_Position = u_PVM_matrix * a_position;
+  }
+  </script>
+   
+  <script id="2d-fragment-shader-spec" type="fragment-shader">
+  precision mediump float;
+
+  // información de la luz
+  uniform vec3 u_light_position;
+  uniform vec3 u_light_color;
+  uniform vec3 u_ambient_color;
+  uniform float u_shininess;
+
+  varying vec3 v_position;
+  varying vec4 v_color;
+  varying vec3 v_normal;
+
+  /**
+   * Función que devuelve el aporte de color de la luz ambiental sobre el objeto
+   */
+  vec3 getAmbientColor(vec3 u_ambient_color, vec3 v_color) {
+    return u_ambient_color * v_color;
+  }
+
+  /**
+   * Función que calcula la reflexión difusa
+   */
+  vec3 getDiffuseColor(vec3 u_light_position, vec3 v_position, vec3 v_normal, vec4 v_color) {
+    vec3 to_light = normalize( u_light_position - v_position );
+    vec3 fragment_normal = normalize(v_normal);
+
+    float cos_angle = dot(fragment_normal, to_light);
+    cos_angle = clamp(cos_angle, 0.0, 1.0);
+
+    return vec3(v_color) * cos_angle;
+  }
+
+  /**
+   * Función que calcula la reflexión especular
+   */
+  vec3 getSpecularColor(vec3 u_light_position, vec3 u_light_color, vec3 v_position, vec3 v_normal, vec4 v_color) {
+    vec3 to_light = normalize( u_light_position - v_position );
+    vec3 fragment_normal = normalize(v_normal);
+
+    vec3 reflection = normalize( reflect(-to_light, fragment_normal) );	
+    // el vector de reflexión corresponde a: 2 * N * (N·direccion_de_la_luz) - direccion_de_la_luz
+    // vec3 reflection = normalize( 2.0 * fragment_normal * dot(fragment_normal, to_light) - to_light );
+
+    vec3 to_camera = normalize( vec3(0,0,0) - v_position );
+
+    float cos_angle = dot(reflection, to_camera);
+    cos_angle = clamp(cos_angle, 0.0, 1.0);
+    cos_angle = pow(cos_angle, u_shininess);
+
+    vec3 specular_color = u_light_color * cos_angle;
+    vec3 object_color = vec3(v_color) * (1.0 - cos_angle);
+
+    return specular_color;
+  }
+
+  void main() {
+    // color ambiental
+    vec3 ambient_color = getAmbientColor(u_ambient_color, vec3(v_color));
+
+    // color difuso
+    vec3 diffuse_color = getDiffuseColor(u_light_position, v_position, v_normal, v_color);
+
+    // color especular
+    vec3 specular_color = getSpecularColor(u_light_position, u_light_color, v_position, v_normal, v_color);
+    
+    gl_FragColor = vec4((ambient_color + diffuse_color + specular_color), v_color.a);
+  }
+  </script>
 
 
 </body>

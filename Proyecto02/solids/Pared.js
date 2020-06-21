@@ -10,9 +10,9 @@ export default class Pared {
      */
     constructor(gl, initial_transform) {
 
-        let matrixAux = new Matrix4(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+        let matrixAux = new Vector3(0, 0, 0);
 
-        this.initial_transform = initial_transform || matrixAux.identity();
+        this.initial_transform = initial_transform || matrixAux;
 
         let vertices = this.getVertices();
 
@@ -37,9 +37,12 @@ export default class Pared {
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.vertices), gl.STATIC_DRAW);
 
         this.texture = gl.createTexture();
+        gl.activeTexture(gl.TEXTURE4);
         gl.bindTexture(gl.TEXTURE_2D, this.texture);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, ImageLoader.getImage("./texturas/Cuarto.png"));
-        gl.generateMipmap(gl.TEXTURE_2D);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
         this.uv = this.getUV(this.vertices);
         this.UVBuffer = gl.createBuffer();
@@ -62,8 +65,11 @@ export default class Pared {
      * @param {Matrix4} projectionMatrix
      */
     draw(gl, shader_locations, lightPos, viewMatrix, projectionMatrix) {
+        //gl.useProgram(this.program);
 
-        gl.bindTexture(gl.TEXTURE_2D, this.texture);
+        //gl.bindTexture(gl.TEXTURE_2D, this.texture);
+
+        gl.uniform1i(shader_locations.u_texture, 4);
 
         gl.enableVertexAttribArray(shader_locations.positionAttribute);
         gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
@@ -92,8 +98,6 @@ export default class Pared {
 
         gl.drawArrays(gl.TRIANGLES, 0, this.num_elements);
     }
-
-
 
     getVertices() {
         return [ //
