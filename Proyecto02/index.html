@@ -14,7 +14,7 @@
   <p id="demo"></p>
   </div>
 
-  <audio src="/audio.mp3" autoplay loop></audio>
+  <audio src="media/audio.mp3" autoplay loop></audio>
 
   <script id="2d-vertex-shader-nm" type="vertex-shader">
   precision mediump float;
@@ -181,7 +181,7 @@
       factor += cos_angle;
     }
 
-    factor*=0.25;
+    factor*=0.3;
 
     gl_FragColor = vec4(ambient + vec3(texture2D(u_texture, v_texcoord)) * factor , 1.0);
     // la función texture2D se encarga de relacionar el sampler2D u_texture con de las coordenadas uv del polígono
@@ -354,7 +354,7 @@
   uniform vec3 u_ambient;
 
   // el ángulo de apertura del reflector
-  float cut_off = 0.75;
+  float cut_off = 0.7;
 
   // se define la componente de la luz ambiental como un valor constante
   vec3 ambient = vec3(0.0, 0.0, 0.0);

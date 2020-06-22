@@ -15,6 +15,8 @@ import Marco from "./solids/Marco.js";
 import ParedBaja from "./solids/ParedBaja.js";
 import Pared from "./solids/Pared.js";
 import ParedAlta from "./solids/ParedAlta.js";
+import Frente from "./solids/Frente.js";
+import Meteoro from "./solids/Meteoro.js";
 
 import Piso from "./solids/Piso.js";
 
@@ -45,6 +47,13 @@ var doors_count = 0;
 
 var pause_mov = false;
 
+let lastTime = Date.now();
+let current = 0;
+let elapsed = 0;
+let max_elapsed_wait = 30 / 1000;
+let time_step = 0.1;
+let counter_time = 10000;
+
 
 window.addEventListener("load", function() {
     ImageLoader.load(
@@ -57,6 +66,7 @@ window.addEventListener("load", function() {
             "./texturas/Piso_normal.jpg",
             "./texturas/Piso.jpg",
             "./texturas/skybox.png",
+            "./texturas/Meteoro.png",
         ],
         function() {
             // se obtiene una referencia al canvas y al contexto de webgl
@@ -151,7 +161,7 @@ window.addEventListener("load", function() {
                 ],
                 PVM_matrix: gl.getUniformLocation(program, "u_PVM_matrix"),
                 VM_matrix: gl.getUniformLocation(program, "u_VM_matrix"),
-                
+
             }
             let shader_locations_spec = {
                 positionAttribute: gl.getAttribLocation(programSpec, "a_position"),
@@ -691,6 +701,9 @@ window.addEventListener("load", function() {
                 new CuartoInicio(
                     gl, Matrix4.multiply(Matrix4.rotateY(0), Matrix4.translate(new Vector3(0, 5, 20.7)))
                 ),
+                new Frente(
+                    gl, Matrix4.translate(new Vector3(0, 0, 10.2))
+                ),
                 // Marcos de Puertas
                 new Marco(
                     gl, Matrix4.multiply(Matrix4.rotateY(-90), Matrix4.translate(new Vector3(-10, 4, 0)))
@@ -713,12 +726,17 @@ window.addEventListener("load", function() {
                 new Pared(
                     gl, Matrix4.multiply(Matrix4.multiply(Matrix4.rotateY(-90), Matrix4.translate(new Vector3(-10, 6.8, 4.75))), Matrix4.scale(new Vector3(1, 1, .7125)))
                 ),
+
             ]
+
+            let meteoro = new Meteoro(
+                gl, Matrix4.translate(new Vector3(0, 7, 0))
+            );
 
             // Se crean tanto la camara principal como la camara de seguirdad secundaria
             let security_camera = new Camara(new Vector3(5, 9, -85), new Vector3(0, 5, 5), new Vector3(0, 1, 0));
-            let camera = new Camara(new Vector3(0, 5, 15), new Vector3(0, 5, 0), new Vector3(0, 1, 0));
-            
+            let camera = new Camara(new Vector3(0, 5, 20), new Vector3(0, 5, 0), new Vector3(0, 1, 0));
+
             let skybox = new Skybox(gl, Matrix4.multiply(Matrix4.scale(new Vector3(500, 500, 500)), Matrix4.rotateX(90)));
 
             // se crea una matriz de cámara (o vista)
@@ -730,7 +748,7 @@ window.addEventListener("load", function() {
 
             //let projectionMatrix = projectionOrtMatrix;
             let projectionMatrix = projectionPersMatrix;
-    
+
 
             // Se define el arreglo que contiene la posicion de la luz
             let lightPos = [0, 9.5, 0, 1];
@@ -742,7 +760,8 @@ window.addEventListener("load", function() {
             ];
 
             let lightPosR = [0, 9.5, 20, 1];
-            let lightDir = [0, -9, 25, 1];
+
+
             let ambient = [0.5, 0.5, 0.0];
 
             // Se definen las instrucciones para generar la luz en le canvas
@@ -752,12 +771,34 @@ window.addEventListener("load", function() {
 
             // Función draw
             function draw(current_frame) {
-                
+                let lightDir = [0, -9, 15, 1];
+
                 gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
                 gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
                 delta_time = current_frame - last_frame;
                 last_frame = delta_time;
+
+                current = Date.now();
+                elapsed = (current - lastTime) / 2700;
+                if (elapsed > max_elapsed_wait) {
+                    elapsed = max_elapsed_wait;
+                }
+
+                if (counter_time > time_step) {
+                    if (lightDir[3] == 0) {
+                        lightDir = [0, 0, 0, 1];
+                    }
+                    if (lightDir[3] == 1) {
+                        lightDir = [0, 0, 0, 0];
+                    }
+                    //draw();
+                    counter_time = 0;
+                }
+                counter_time += elapsed;
+
+                lastTime = current;
+
 
                 if (actual_camera) {
                     viewMatrix = camera.getMatrix();
@@ -765,28 +806,29 @@ window.addEventListener("load", function() {
                     viewMatrix = security_camera.getMatrix();
                 }
 
+
                 let projectionViewMatrix = Matrix4.multiply(projectionMatrix, viewMatrix);
 
-                if(camera_in_tour){
-                    
+                if (camera_in_tour) {
+
                     camera_tour(fase);
                     console.log(degrees_count);
-                
-                    if (fase == 1){
-                        if( basic_equals(camera.pos.z ,0) || basic_equals(camera.pos.z ,-20) || basic_equals(camera.pos.z ,-40) || basic_equals(camera.pos.z ,-60) || basic_equals(camera.pos.z ,-80)){
+
+                    if (fase == 1) {
+                        if (basic_equals(camera.pos.z, 0) || basic_equals(camera.pos.z, -20) || basic_equals(camera.pos.z, -40) || basic_equals(camera.pos.z, -60) || basic_equals(camera.pos.z, -80)) {
                             degrees_count = 0;
                             fase = 2;
                         }
                     }
-                    if (fase == 2){
-                        let f = (!basic_equals(camera.pos.z ,-80)) && (!basic_equals(camera.pos.z ,0))
-                        if ( basic_equals(degrees_count ,360) && (f || first_door)){
+                    if (fase == 2) {
+                        let f = (!basic_equals(camera.pos.z, -80)) && (!basic_equals(camera.pos.z, 0))
+                        if (basic_equals(degrees_count, 360) && (f || first_door)) {
                             first_door = false;
                             fase = 1;
-                        } else if (basic_equals(degrees_count ,540)){
+                        } else if (basic_equals(degrees_count, 540)) {
                             fase = 1;
                         }
-                    }                    
+                    }
                 }
 
                 if(doors_in_move){
@@ -811,10 +853,6 @@ window.addEventListener("load", function() {
 
                 gl.useProgram(program);
 
-                let ambientLigth = gl.createBuffer();
-                gl.bindBuffer(gl.ARRAY_BUFFER, ambientLigth);
-                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(ambient), gl.STATIC_DRAW);
-
                 // ciclo que dibujara las figuras almacenadas en el arreglo entradas
                 for (let i = 0; i < entradas.length; i++) {
                     // se dibuja la geometría
@@ -834,16 +872,21 @@ window.addEventListener("load", function() {
                         gl, shader_locations, lightPos1, viewMatrix, projectionMatrix
                     );
                 }
-                for (let i = 1; i < inicio.length; i++) {
+                for (let i = 2; i < inicio.length; i++) {
                     // se dibuja la geometría
                     inicio[i].draw(
                         gl, shader_locations, lightPos1, viewMatrix, projectionMatrix
                     );
                 }
 
+                meteoro.draw(gl, shader_locations, lightPos1, viewMatrix, projectionMatrix);
+
                 gl.useProgram(programReflect);
 
                 inicio[0].draw(
+                    gl, shader_locations_reflect, lightPosR, lightDir, viewMatrix, projectionMatrix
+                );
+                inicio[1].draw(
                     gl, shader_locations_reflect, lightPosR, lightDir, viewMatrix, projectionMatrix
                 );
 
@@ -856,7 +899,7 @@ window.addEventListener("load", function() {
                         gl, shader_locations_spec, [lightPos[0], lightPos[1], newluz, lightPos[3]], viewMatrix, projectionMatrix
                     );
                 }
-                
+
                 requestAnimationFrame(draw);
             }
 
@@ -870,49 +913,49 @@ window.addEventListener("load", function() {
                 switch (ev.which) {
                     case 87:
                         {
-                            if (!pause_mov){
+                            if (!pause_mov) {
                                 camera.move("front");
                             }
                             break;
                         }
                     case 83:
                         {
-                            if (!pause_mov){
+                            if (!pause_mov) {
                                 camera.move("back");
                             }
                             break;
                         }
                     case 68:
                         {
-                            if (!pause_mov){
+                            if (!pause_mov) {
                                 camera.move("right");
                             }
                             break;
                         }
                     case 65:
                         {
-                            if (!pause_mov){
+                            if (!pause_mov) {
                                 camera.move("left");
                             }
                             break;
                         }
                     case 71:
                         {
-                            if (actual_camera){
+                            if (actual_camera) {
                                 ///Poniendo un estado a la camara
                                 camera.setPos(new Vector3(0, 5, 2));
                                 camera.setCOI(new Vector3(0, 5, -11));
-                                camera.front = new Vector3(0,0,-1);
+                                camera.front = new Vector3(0, 0, -1);
                                 camera.yaw = -90;
                                 camera.pitch = 0;
 
                                 pause_mov = !pause_mov;
 
                                 camera_in_tour = !camera_in_tour;
-                                
-                                if (!camera_in_tour){
+
+                                if (!camera_in_tour) {
                                     fase = 0;
-                                }else{
+                                } else {
                                     fase = 1;
                                     first_door = true;
                                 }
@@ -933,9 +976,9 @@ window.addEventListener("load", function() {
                     case 80:
                         {
                             actual_projection = !actual_projection;
-                            if (actual_projection){
+                            if (actual_projection) {
                                 projectionMatrix = projectionPersMatrix;
-                            }else{
+                            } else {
                                 projectionMatrix = projectionOrtMatrix;
                             }
                             break;
@@ -955,7 +998,7 @@ window.addEventListener("load", function() {
                 let offsetx = posx - camera.lastx;
                 let offsety = posy - camera.lasty;
 
-                if (!pause_mov){
+                if (!pause_mov) {
                     camera.moveCamera(offsetx, offsety);
                 }
 
@@ -968,24 +1011,27 @@ window.addEventListener("load", function() {
                 document.getElementById("demo").innerHTML = "";
             }
 
-            function camera_tour(fase){
-                
-                switch(fase){
-                    case 1: {
-                        camera.move("front");
-                        break;
-                    }
-                    case 2: {
-                        camera.moveCamera(.4,0);
-                        degrees_count += .4;
-                        break;
-                    }
-                    case 0: {
-                        break;
-                    }
-                    
+            function camera_tour(fase) {
+
+                switch (fase) {
+                    case 1:
+                        {
+                            camera.move("front");
+                            break;
+                        }
+                    case 2:
+                        {
+                            camera.moveCamera(.4, 0);
+                            degrees_count += .4;
+                            break;
+                        }
+                    case 0:
+                        {
+                            break;
+                        }
+
                 }
-                
+
             }
 
             function open_doors(){
@@ -1047,6 +1093,6 @@ function createProgram(gl, vertexShader, fragmentShader) {
     gl.deleteProgram(program);
 }
 
-function basic_equals(a,b){
+function basic_equals(a, b) {
     return Math.abs(a - b) < .5
 }
