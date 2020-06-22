@@ -20,8 +20,8 @@ export default class Camera {
         this.m = new Matrix4().identity();
 
         //variables para movimiento con el teclado
-        this.front = Vector3.subtract(this.coi,this.pos).normalize();
-        this.front = new Vector3(this.front.x,0,this.front.z).normalize();
+        this.front = Vector3.subtract(this.coi, this.pos).normalize();
+        this.front = new Vector3(this.front.x, 0, this.front.z).normalize();
         this.speed = 1;
 
         //variables para movimiento de la camara
@@ -75,40 +75,44 @@ export default class Camera {
     }
 
 
-    move(direction){
+    move(direction) {
 
         let movement;
-        let new_pos;    
-        let new_coi;    
-            
-        switch(direction){
-            case("front"):{
-                movement = this.front.scalar(this.speed);
-                new_pos = Vector3.add(this.pos, movement);
-                new_coi = Vector3.add(movement,this.coi)
-                break;
-            }
-            case("back"):{
-                movement = this.front.scalar(this.speed);
-                new_pos = Vector3.subtract(this.pos, movement);
-                new_coi = Vector3.subtract(this.coi,movement)
-                break;
-            }
-            case("right"):{
-                movement = Vector3.cross(this.front,this.up).scalar(this.speed);
-                new_pos = Vector3.add(this.pos, movement);
-                new_coi  =  Vector3.add(movement,this.coi)
-                break;
-            }
-            case("left"):{
-                movement = Vector3.cross(this.front,this.up).scalar(this.speed);
-                new_pos = Vector3.subtract(this.pos, movement);
-                new_coi = Vector3.subtract(this.coi,movement)
-                break;
-            }
+        let new_pos;
+        let new_coi;
+
+        switch (direction) {
+            case ("front"):
+                {
+                    movement = this.front.scalar(this.speed);
+                    new_pos = Vector3.add(this.pos, movement);
+                    new_coi = Vector3.add(movement, this.coi)
+                    break;
+                }
+            case ("back"):
+                {
+                    movement = this.front.scalar(this.speed);
+                    new_pos = Vector3.subtract(this.pos, movement);
+                    new_coi = Vector3.subtract(this.coi, movement)
+                    break;
+                }
+            case ("right"):
+                {
+                    movement = Vector3.cross(this.front, this.up).scalar(this.speed);
+                    new_pos = Vector3.add(this.pos, movement);
+                    new_coi = Vector3.add(movement, this.coi)
+                    break;
+                }
+            case ("left"):
+                {
+                    movement = Vector3.cross(this.front, this.up).scalar(this.speed);
+                    new_pos = Vector3.subtract(this.pos, movement);
+                    new_coi = Vector3.subtract(this.coi, movement)
+                    break;
+                }
         }
-        
-        if(!(new_pos.x > 5 || new_pos.x < -5 || new_pos.z > 16 || new_pos.z < -88)){
+
+        if (!(new_pos.x > 5 || new_pos.x < -5 || new_pos.z > 21 || new_pos.z < -88)) {
             this.setPos(new_pos);
             this.setCOI(new_coi);
         }
@@ -116,57 +120,55 @@ export default class Camera {
     }
 
     /*Función se llama para asignar los valores al vector frontal de la cámara*/
-    updateCamera(){
+    updateCamera() {
         let direction = new Vector3(
-        Math.cos(degrees_to_radians(this.yaw)) * Math.cos(degrees_to_radians(this.pitch)),
-        Math.sin(degrees_to_radians(this.pitch)),
-        Math.sin(degrees_to_radians(this.yaw)) * Math.cos(degrees_to_radians(this.pitch))
+            Math.cos(degrees_to_radians(this.yaw)) * Math.cos(degrees_to_radians(this.pitch)),
+            Math.sin(degrees_to_radians(this.pitch)),
+            Math.sin(degrees_to_radians(this.yaw)) * Math.cos(degrees_to_radians(this.pitch))
         );
-   
-        this.front.set(direction.x,0,direction.z);
+
+        this.front.set(direction.x, 0, direction.z);
         this.front = this.front.normalize();
-        
-        let new_coi = Vector3.add(direction.normalize(),this.pos);
+
+        let new_coi = Vector3.add(direction.normalize(), this.pos);
         this.setCOI(new_coi);
     }
 
     /*
-    * Usamos la función de html onmousemove, para obtener la posición del ratón en 
-    * la pantalla y poder sacar hacia donde se mueve el ratón.
-    * 
-    * Recordamos que se inició las variables de lastx y lasty en el centro del canvas
-    */
-    moveCamera(offsetx,offsety){
-            
+     * Usamos la función de html onmousemove, para obtener la posición del ratón en 
+     * la pantalla y poder sacar hacia donde se mueve el ratón.
+     * 
+     * Recordamos que se inició las variables de lastx y lasty en el centro del canvas
+     */
+    moveCamera(offsetx, offsety) {
+
         this.lastx = offsetx + this.lastx;;
         this.lasty = offsety + this.lasty;;
-            
+
         const sensibilidad = 1; // valor de que tanto queremos que avance el ratón
         let offsetx2 = sensibilidad * offsetx;
         let offsety2 = sensibilidad * offsety;
-            
-        this.yaw   += this.speed * offsetx2;
-        this.pitch += this.speed * offsety2; 
 
-        if(this.pitch > 89.0)
-            this.pitch =  89.0;
-        if(this.pitch < -89.0)
+        this.yaw += this.speed * offsetx2;
+        this.pitch += this.speed * offsety2;
+
+        if (this.pitch > 89.0)
+            this.pitch = 89.0;
+        if (this.pitch < -89.0)
             this.pitch = -89.0;
-        
+
         /*
-        * Teniendo los nuevos angulos de Euler actualizamos la cámara
-        */
+         * Teniendo los nuevos angulos de Euler actualizamos la cámara
+         */
         this.updateCamera();
     }
 
 }
 
 /*
-* Cambia de grados a radianes.
-* */
-function degrees_to_radians(degrees)
-{
+ * Cambia de grados a radianes.
+ * */
+function degrees_to_radians(degrees) {
     let pi = Math.PI;
-    return degrees * (pi/180);
+    return degrees * (pi / 180);
 }
-

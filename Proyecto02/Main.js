@@ -721,7 +721,7 @@ window.addEventListener("load", function() {
 
             // Se crean tanto la camara principal como la camara de seguirdad secundaria
             let security_camera = new Camara(new Vector3(5, 9, -85), new Vector3(0, 5, 5), new Vector3(0, 1, 0));
-            let camera = new Camara(new Vector3(0, 5, 15), new Vector3(0, 5, 0), new Vector3(0, 1, 0));
+            let camera = new Camara(new Vector3(0, 5, 20), new Vector3(0, 5, 0), new Vector3(0, 1, 0));
 
             let skybox = new Skybox(gl, Matrix4.multiply(Matrix4.scale(new Vector3(500, 500, 500)), Matrix4.rotateX(90)));
 
