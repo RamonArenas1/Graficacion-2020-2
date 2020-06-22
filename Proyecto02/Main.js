@@ -45,7 +45,14 @@ var doors_in_move = false;
 var open = -1;
 var doors_count = 0;
 
+// variable para pausar el movimiento
 var pause_mov = false;
+
+// variables para el manejo de movimientos en curvas de bezier
+//Inicializamos la variable del tiempo t para calcular las posiciones 
+//con t in [0,1] 
+var t = 0;
+var c = 0; //Contador auxiliar 
 
 let lastTime = Date.now();
 let current = 0;
@@ -727,11 +734,36 @@ window.addEventListener("load", function() {
                     gl, Matrix4.multiply(Matrix4.multiply(Matrix4.rotateY(-90), Matrix4.translate(new Vector3(-10, 6.8, 4.75))), Matrix4.scale(new Vector3(1, 1, .7125)))
                 ),
 
-            ]
+            ];
 
-            let meteoro = new Meteoro(
-                gl, Matrix4.translate(new Vector3(0, 7, 0))
-            );
+            let meteoro_cp1 = [
+                new Vector3(10,20,5),
+                new Vector3(0,15,-10),
+                new Vector3(-11,10,-15) 
+              ];
+
+            let meteoro_cp2 = [
+                new Vector3(-10,20,-20),
+                new Vector3(0,15,-35),
+                new Vector3(11,10,-40) 
+              ];
+
+            let meteoro_cp3 = [
+                new Vector3(10,20,-60),
+                new Vector3(0,15,-120),
+                new Vector3(-11,10,-20) 
+              ];
+
+            let meteoros = [
+                new Meteoro(
+                    gl, Matrix4.scale(new Vector3(2,2,2)), meteoro_cp1),
+                
+                new Meteoro(
+                    gl, Matrix4.scale(new Vector3(2,2,2)), meteoro_cp2),
+                
+                new Meteoro(
+                    gl, Matrix4.scale(new Vector3(2,2,2)), meteoro_cp3),
+            ];
 
             // Se crean tanto la camara principal como la camara de seguirdad secundaria
             let security_camera = new Camara(new Vector3(5, 9, -85), new Vector3(0, 5, 5), new Vector3(0, 1, 0));
@@ -878,8 +910,11 @@ window.addEventListener("load", function() {
                         gl, shader_locations, lightPos1, viewMatrix, projectionMatrix
                     );
                 }
-
-                meteoro.draw(gl, shader_locations, lightPos1, viewMatrix, projectionMatrix);
+                for (let i = 0; i < meteoros.length; i++) {
+                    meteoros[i].draw(
+                        gl, shader_locations, lightPos1, viewMatrix, projectionMatrix, t
+                    );
+                }
 
                 gl.useProgram(programReflect);
 
@@ -899,15 +934,15 @@ window.addEventListener("load", function() {
                         gl, shader_locations_spec, [lightPos[0], lightPos[1], newluz, lightPos[3]], viewMatrix, projectionMatrix
                     );
                 }
+                
+                //Actualizamos t 
+                c = (c + 1) % 1001; // Cálculo con enteros para evitar problemas de precisión con decimales de js 
+                t = c / 500; 
 
                 requestAnimationFrame(draw);
             }
 
             requestAnimationFrame(draw);
-
-            let x = 0;
-            let y = 0;
-
 
             window.onkeydown = function(ev) {
                 switch (ev.which) {

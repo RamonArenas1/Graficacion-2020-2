@@ -112,10 +112,10 @@ export default class Camera {
                 }
         }
 
-        if (!(new_pos.x > 5 || new_pos.x < -5 || new_pos.z > 21 || new_pos.z < -88)) {
+        //if (!(new_pos.x > 5 || new_pos.x < -5 || new_pos.z > 21 || new_pos.z < -88)) {
             this.setPos(new_pos);
             this.setCOI(new_coi);
-        }
+        //}
 
     }
 
