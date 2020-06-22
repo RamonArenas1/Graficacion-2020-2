@@ -181,7 +181,7 @@
       factor += cos_angle;
     }
 
-    factor*=0.3;
+    factor*=0.25;
 
     gl_FragColor = vec4(ambient + vec3(texture2D(u_texture, v_texcoord)) * factor , 1.0);
     // la función texture2D se encarga de relacionar el sampler2D u_texture con de las coordenadas uv del polígono

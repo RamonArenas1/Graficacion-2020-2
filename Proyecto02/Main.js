@@ -6,6 +6,7 @@ import Matrix4 from "./maths_CG/Matrix4.js";
 import Camara from "./camara/Camera.js";
 import ImageLoader from "./imageloader/ImageLoader.js";
 
+// Clases de Objetos
 import Puerta from "./solids/Puerta.js";
 import Perilla from "./solids/Perilla.js";
 import Cuarto from "./solids/Cuarto.js";
@@ -17,13 +18,12 @@ import Pared from "./solids/Pared.js";
 import ParedAlta from "./solids/ParedAlta.js";
 import Frente from "./solids/Frente.js";
 import Meteoro from "./solids/Meteoro.js";
-
 import Piso from "./solids/Piso.js";
-
 import Foco from "./solids/Foco.js";
-
-import Skybox from "./solids/Skybox.js";
 import Imagenes from "./solids/Imagenes.js";
+
+//Clase de Sky box para ambientar la escena
+import Skybox from "./solids/Skybox.js";
 
 /**
  * Varibales que controlan el tiempo para realizar el render de la escena
@@ -55,6 +55,7 @@ var pause_mov = false;
 var t = 0;
 var c = 0; //Contador auxiliar 
 
+// VAriables utilizadas e instanciadas para calcular los tics de segundos
 let lastTime = Date.now();
 let current = 0;
 let elapsed = 0;
@@ -67,6 +68,9 @@ window.addEventListener("load", function() {
     let canvas = document.getElementById("the_canvas");
     canvas.width  = window.innerWidth;
     canvas.height = window.innerHeight;
+
+    // Image Loader con el arreglo de todas las texturas
+
     ImageLoader.load(
         [
             "./texturas/Puerta.png",
@@ -96,22 +100,23 @@ window.addEventListener("load", function() {
             const gl = canvas.getContext("webgl");
             if (!gl) throw "WebGL no soportado";
 
+            // variable utilizada para generar sonido
             var raze = document.getElementById("ulti");
             var alpoh = document.getElementById("rolita_chula");
 
-            // se obtiene una referencia al elemento con id="2d-vertex-shader" que se encuentra en el archivo index.html
+            //Referencia al script que representa el shader de vertices con iluminacion con mapa de normal
             let vertexShaderSourceNM = document.getElementById("2d-vertex-shader-nm").text;
             let vertexShaderNM = createShader(gl, gl.VERTEX_SHADER, vertexShaderSourceNM);
 
-            //Referencia al script que representa el shader de fragmentos con iluminacion difusa
+            //Referencia al script que representa el shader de fragmentos con iluminacion con mapa de normal
             let fragmentShaderSourceNM = document.getElementById("2d-fragment-shader-nm").text;
             let fragmentShaderNM = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSourceNM);
 
-            // se obtiene una referencia al elemento con id="2d-vertex-shader" que se encuentra en el archivo index.html
+            //Referencia al script que representa el shader de vertices con iluminacion multiple
             let vertexShaderSource = document.getElementById("2d-vertex-shader").text;
             let vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
 
-            //Referencia al script que representa el shader de fragmentos con iluminacion difusa
+            //Referencia al script que representa el shader de fragmentos con iluminacion multiple
             let fragmentShaderSource = document.getElementById("2d-fragment-shader").text;
             let fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
 
@@ -123,15 +128,15 @@ window.addEventListener("load", function() {
             let fragmentShaderSourceSpec = document.getElementById("2d-fragment-shader-spec").text;
             let fragmentShaderSpec = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSourceSpec);
 
-            //Referencia al script que representa el shader de vertices con iluminacion especular
+            //Referencia al script que representa el shader de vertices con iluminacion reflector
             let vertexShaderSourceReflect = document.getElementById("2d-vertex-shader-reflect").text;
             let vertexShaderReflect = createShader(gl, gl.VERTEX_SHADER, vertexShaderSourceReflect);
 
-            //Referencia al script que representa el shader de fragmentos con iluminacion especular
+            //Referencia al script que representa el shader de fragmentos con iluminacion con reflector
             let fragmentShaderSourceReflect = document.getElementById("2d-fragment-shader-reflect").text;
             let fragmentShaderReflect = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSourceReflect);
 
-            // se crea el programa que se enviara a la tarjeta de video, el cual está compuesto por los dos shader que se crearon anteriormente
+            // se crean los programas que se enviaran a la tarjeta de video, el cual está compuesto por los shaders que se crearon anteriormente
             let programNM = createProgram(gl, vertexShaderNM, fragmentShaderNM);
             let program = createProgram(gl, vertexShader, fragmentShader);
             let programSpec = createProgram(gl, vertexShaderSpec, fragmentShaderSpec);
@@ -161,13 +166,11 @@ window.addEventListener("load", function() {
                 // para poder enviar información a un arreglo, es necesario tener referencias a cada entrada del arreglo, consideren que en GLSL los arreglos tienen dimensiones fijas no como en JavaScript
                 lightPosition: gl.getUniformLocation(programNM, "u_light_position"),
 
-                // la posición de la cámara
-                //u_camera_position: gl.getUniformLocation(programNM, "u_camera_position"),
-
                 PVM_matrix: gl.getUniformLocation(programNM, "u_PVM_matrix"), //
                 u_M_matrix: gl.getUniformLocation(programNM, "u_M_matrix"), //
             }
 
+            // se construye una referencia a los attributos definidos en el shader multiples luces
             let shader_locations = {
                 positionAttribute: gl.getAttribLocation(program, "a_position"),
                 colorAttribute: gl.getAttribLocation(program, "a_color"),
@@ -188,6 +191,8 @@ window.addEventListener("load", function() {
                 VM_matrix: gl.getUniformLocation(program, "u_VM_matrix"),
 
             }
+
+            // se construye una referencia a los attributos definidos en el shader de iluminacion especular
             let shader_locations_spec = {
                 positionAttribute: gl.getAttribLocation(programSpec, "a_position"),
                 colorAttribute: gl.getAttribLocation(programSpec, "a_color"),
@@ -202,6 +207,7 @@ window.addEventListener("load", function() {
                 VM_matrix: gl.getUniformLocation(programSpec, "u_VM_matrix")
             }
 
+            // se construye una referencia a los attributos definidos en el shader de iluminacion con reflector
             let shader_locations_reflect = {
                     positionAttribute: gl.getAttribLocation(programReflect, "a_position"),
                     colorAttribute: gl.getAttribLocation(programReflect, "a_color"),
@@ -672,6 +678,7 @@ window.addEventListener("load", function() {
                 ),
             ];
 
+            // Arreglo que instancia el piso
             let pisos = [
                 // Piso
                 new Piso(
@@ -703,6 +710,7 @@ window.addEventListener("load", function() {
                 ),
             ];
 
+            // Arreglo que insrancia los focos
             let focos = [
                 // Focos
                 new Foco(
@@ -722,6 +730,7 @@ window.addEventListener("load", function() {
                 ),
             ];
 
+            // Arreglo que instancia el cuaro de inicio
             let inicio = [
                 new CuartoInicio(
                     gl, Matrix4.multiply(Matrix4.rotateY(0), Matrix4.translate(new Vector3(0, 5, 20.7)))
@@ -754,24 +763,28 @@ window.addEventListener("load", function() {
 
             ];
 
+            // Posicion de los puntos de la curva de Bezier
             let meteoro_cp1 = [
                 new Vector3(10, 20, 5),
                 new Vector3(0, 15, -10),
                 new Vector3(-11, 10, -15)
             ];
 
+            // Posicion de los puntos de la curva de Bezier
             let meteoro_cp2 = [
                 new Vector3(-10, 20, -20),
                 new Vector3(0, 15, -35),
                 new Vector3(11, 10, -40)
             ];
 
+            // Posicion de los puntos de la curva de Bezier
             let meteoro_cp3 = [
                 new Vector3(10, 20, -60),
                 new Vector3(0, 15, -120),
                 new Vector3(-11, 10, -20)
             ];
 
+            // Arreglo que instancia los meteoros
             let meteoros = [
                 new Meteoro(
                     gl, Matrix4.scale(new Vector3(2, 2, 2)), meteoro_cp1),
@@ -783,6 +796,7 @@ window.addEventListener("load", function() {
                     gl, Matrix4.scale(new Vector3(2, 2, 2)), meteoro_cp3),
             ];
 
+            // Arreglo que instancia las imagenes utilizadas y puestas en el canvas
             let images = [
                 // Imagenes Izq
                 new Imagenes(
@@ -843,38 +857,36 @@ window.addEventListener("load", function() {
             // Se define el arreglo que contiene la posicion de la luz
             let lightPos = [0, 9.5, 0, 1];
 
+            // Matriz que perimite  y da las posiciones de las multiples luces
             let lightPos1 = [
                 [0, 9, 0, 1],
                 [0, 9, -20, 1],
                 [0, 9, -40, 1],
+                [0, 9, -60, 1],
             ];
 
+            // Arreglo que denota la posicion del reflector
             let lightPosR = [0, 9.5, 20, 1];
-
-
-            let ambient = [0.5, 0.5, 0.0];
-
-            // Se definen las instrucciones para generar la luz en le canvas
-            let u_ambien_ = gl.createBuffer();
-            gl.bindBuffer(gl.ARRAY_BUFFER, u_ambien_);
-            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(ambient), gl.STATIC_DRAW);
 
             // Función draw
             function draw(current_frame) {
                 let lightDir = [0, -9, 15, 1];
 
+                // Limpieza del buffer y calculado del tamaño del canvas
                 gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
                 gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
                 delta_time = current_frame - last_frame;
                 last_frame = delta_time;
 
+                // valores utilizados para dar intervalos de tiempo para simular parpadeo
                 current = Date.now();
                 elapsed = (current - lastTime) / 2700;
                 if (elapsed > max_elapsed_wait) {
                     elapsed = max_elapsed_wait;
                 }
 
+                // Condicional que permite hacer que parpadee la luz reflectora del cuarto de inicio
                 if (counter_time > time_step) {
                     if (lightDir[3] == 0) {
                         lightDir = [0, 0, 0, 1];
@@ -889,16 +901,17 @@ window.addEventListener("load", function() {
 
                 lastTime = current;
 
-
+                // Condiconal que permite cambiar de cámara
                 if (actual_camera) {
                     viewMatrix = camera.getMatrix();
                 } else {
                     viewMatrix = security_camera.getMatrix();
                 }
 
-
+                // Matriz de Vista de Proyeccion utilizada para construir los objetos
                 let projectionViewMatrix = Matrix4.multiply(projectionMatrix, viewMatrix);
 
+                // condiconal que permite el recorrido automático
                 if (camera_in_tour) {
 
                     camera_tour(fase);
@@ -921,6 +934,7 @@ window.addEventListener("load", function() {
                     }
                 }
 
+                // Condicional que generea rotacion para simular abrir las pueras
                 if (doors_in_move) {
                     open_doors();
                     if (basic_equals(doors_count, 90)) {
@@ -930,10 +944,13 @@ window.addEventListener("load", function() {
                     }
                 }
 
+                // llamada de funcion invocada desde el objeto skybox
                 skybox.draw(gl, projectionViewMatrix);
 
+                // se genera una instancia del programa del shader que usa los mapas de normales
                 gl.useProgram(programNM);
-                // se genera una instancia del programa del shader
+
+                // ciclo for que dibuja el piso con mapas de normales
                 for (let i = 0; i < pisos.length; i++) {
                     // se dibuja la geometría
                     pisos[i].draw(
@@ -941,6 +958,7 @@ window.addEventListener("load", function() {
                     );
                 }
 
+                // programa de shader de multiples luces
                 gl.useProgram(program);
 
                 // ciclo que dibujara las figuras almacenadas en el arreglo entradas
@@ -950,18 +968,21 @@ window.addEventListener("load", function() {
                         gl, shader_locations, lightPos1, viewMatrix, projectionMatrix
                     );
                 }
+                // Ciclo for para dibujar los cuartos de la derecha
                 for (let i = 0; i < entradasInv.length; i++) {
                     // se dibuja la geometría
                     entradasInv[i].draw(
                         gl, shader_locations, lightPos1, viewMatrix, projectionMatrix
                     );
                 }
+                // Ciclo for para dibujar el cuarto de salida
                 for (let i = 0; i < salida.length; i++) {
                     // se dibuja la geometría
                     salida[i].draw(
                         gl, shader_locations, lightPos1, viewMatrix, projectionMatrix
                     );
                 }
+                // Ciclo for para dibujar el cuarto de inicio
                 for (let i = 2; i < inicio.length; i++) {
                     // se dibuja la geometría
                     inicio[i].draw(
@@ -969,12 +990,14 @@ window.addEventListener("load", function() {
                     );
                 }
 
+                // Ciclo for para dibujar los meteoros
                 for (let i = 0; i < meteoros.length; i++) {
                     meteoros[i].draw(
                         gl, shader_locations, lightPos1, viewMatrix, projectionMatrix, t
                     );
                 }
 
+                // Ciclo for para dibujar las imágenes
                 for (let i = 0; i < images.length; i++) {
                     // se dibuja la geometría
                     images[i].draw(
@@ -982,9 +1005,10 @@ window.addEventListener("load", function() {
                     );
                 }
 
-
+                // programa de shader de luz reflectora
                 gl.useProgram(programReflect);
 
+                // Ciclo for para dibujar 2 objetos del cuarto de inicio
                 inicio[0].draw(
                     gl, shader_locations_reflect, lightPosR, lightDir, viewMatrix, projectionMatrix
                 );
@@ -992,8 +1016,10 @@ window.addEventListener("load", function() {
                     gl, shader_locations_reflect, lightPosR, lightDir, viewMatrix, projectionMatrix
                 );
 
+                // Programa de shader de luz especular
                 gl.useProgram(programSpec);
 
+                // Ciclo for para dibujar los focos
                 for (let i = 0; i < focos.length; i++) {
                     // se dibuja la geometría
                     let newluz = i * (-20);
@@ -1006,11 +1032,13 @@ window.addEventListener("load", function() {
                 c = (c + 1) % 1001; // Cálculo con enteros para evitar problemas de precisión con decimales de js 
                 t = c / 500;
 
+                // Llamada Recursiva para recarga continua de Draw para animacion
                 requestAnimationFrame(draw);
             }
 
             requestAnimationFrame(draw);
 
+            // Funcion que permite realizar acciones al presionar una tecla
             window.onkeydown = function(ev) {
                 switch (ev.which) {
                     case 87:
