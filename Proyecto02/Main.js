@@ -1041,6 +1041,7 @@ window.addEventListener("load", function() {
             // Funcion que permite realizar acciones al presionar una tecla
             window.onkeydown = function(ev) {
                 switch (ev.which) {
+                    // w
                     case 87:
                         {
                             if (!pause_mov) {
@@ -1048,6 +1049,7 @@ window.addEventListener("load", function() {
                             }
                             break;
                         }
+                    //s
                     case 83:
                         {
                             if (!pause_mov) {
@@ -1055,6 +1057,7 @@ window.addEventListener("load", function() {
                             }
                             break;
                         }
+                    //d
                     case 68:
                         {
                             if (!pause_mov) {
@@ -1062,12 +1065,15 @@ window.addEventListener("load", function() {
                             }
                             break;
                         }
+                    //x
                     case 88:
                         {
-                            alpoh.pause()
+                            alpoh.pause();
                             raze.play();
-                            alpoh.play()
+                            alpoh.play();
+                            break;
                         }
+                    //a
                     case 65:
                         {
                             if (!pause_mov) {
@@ -1075,6 +1081,7 @@ window.addEventListener("load", function() {
                             }
                             break;
                         }
+                    //g
                     case 71:
                         {
                             if (actual_camera) {
@@ -1098,17 +1105,20 @@ window.addEventListener("load", function() {
                             }
                             break;
                         }
+                    // Esc
                     case 27:
                         {
                             pause_mov = !pause_mov;
                             break;
                         }
+                    // c
                     case 67:
                         {
                             camera.pause_mov = !camera.pause_mov;
                             actual_camera = !actual_camera;
                             break;
                         }
+                    // p
                     case 80:
                         {
                             actual_projection = !actual_projection;
@@ -1119,6 +1129,7 @@ window.addEventListener("load", function() {
                             }
                             break;
                         }
+                    // o
                     case 79:
                         {
                             if (!doors_in_move) {
