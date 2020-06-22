@@ -21,6 +21,7 @@ import Piso from "./solids/Piso.js";
 import Foco from "./solids/Foco.js";
 
 import Skybox from "./solids/Skybox.js";
+import Frente from "./solids/Frente.js";
 
 /**
  * Varibales que controlan el tiempo para realizar el render de la escena
@@ -39,6 +40,13 @@ var degrees_count = 0;
 var first_door = false
 
 var pause_mov = false;
+
+let lastTime = Date.now();
+let current = 0;
+let elapsed = 0;
+let max_elapsed_wait = 30 / 1000;
+let time_step = 0.1;
+let counter_time = 10000;
 
 
 window.addEventListener("load", function() {
@@ -683,6 +691,9 @@ window.addEventListener("load", function() {
                 new CuartoInicio(
                     gl, Matrix4.multiply(Matrix4.rotateY(0), Matrix4.translate(new Vector3(0, 5, 20.7)))
                 ),
+                new Frente(
+                    gl, Matrix4.translate(new Vector3(0, 0, 10.2))
+                ),
                 // Marcos de Puertas
                 new Marco(
                     gl, Matrix4.multiply(Matrix4.rotateY(-90), Matrix4.translate(new Vector3(-10, 4, 0)))
@@ -705,6 +716,7 @@ window.addEventListener("load", function() {
                 new Pared(
                     gl, Matrix4.multiply(Matrix4.multiply(Matrix4.rotateY(-90), Matrix4.translate(new Vector3(-10, 6.8, 4.75))), Matrix4.scale(new Vector3(1, 1, .7125)))
                 ),
+
             ]
 
             // Se crean tanto la camara principal como la camara de seguirdad secundaria
@@ -734,7 +746,8 @@ window.addEventListener("load", function() {
             ];
 
             let lightPosR = [0, 9.5, 20, 1];
-            let lightDir = [0, -9, 25, 1];
+
+
             let ambient = [0.5, 0.5, 0.0];
 
             // Se definen las instrucciones para generar la luz en le canvas
@@ -744,6 +757,7 @@ window.addEventListener("load", function() {
 
             // Función draw
             function draw(current_frame) {
+                let lightDir = [0, -9, 15, 1];
 
                 gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
                 gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -751,11 +765,33 @@ window.addEventListener("load", function() {
                 delta_time = current_frame - last_frame;
                 last_frame = delta_time;
 
+                current = Date.now();
+                elapsed = (current - lastTime) / 2700;
+                if (elapsed > max_elapsed_wait) {
+                    elapsed = max_elapsed_wait;
+                }
+
+                if (counter_time > time_step) {
+                    if (lightDir[3] == 0) {
+                        lightDir = [0, 0, 0, 1];
+                    }
+                    if (lightDir[3] == 1) {
+                        lightDir = [0, 0, 0, 0];
+                    }
+                    //draw();
+                    counter_time = 0;
+                }
+                counter_time += elapsed;
+
+                lastTime = current;
+
+
                 if (actual_camera) {
                     viewMatrix = camera.getMatrix();
                 } else {
                     viewMatrix = security_camera.getMatrix();
                 }
+
 
                 let projectionViewMatrix = Matrix4.multiply(projectionMatrix, viewMatrix);
 
@@ -794,9 +830,9 @@ window.addEventListener("load", function() {
 
                 gl.useProgram(program);
 
-                /*let ambientLigth = gl.createBuffer();
+                /* let ambientLigth = gl.createBuffer();
                 gl.bindBuffer(gl.ARRAY_BUFFER, ambientLigth);
-                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(ambient), gl.STATIC_DRAW); */
+                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(shader_locations), gl.STATIC_DRAW); */
 
                 // ciclo que dibujara las figuras almacenadas en el arreglo entradas
                 for (let i = 0; i < entradas.length; i++) {
@@ -817,7 +853,7 @@ window.addEventListener("load", function() {
                         gl, shader_locations, lightPos1, viewMatrix, projectionMatrix
                     );
                 }
-                for (let i = 1; i < inicio.length; i++) {
+                for (let i = 2; i < inicio.length; i++) {
                     // se dibuja la geometría
                     inicio[i].draw(
                         gl, shader_locations, lightPos1, viewMatrix, projectionMatrix
@@ -827,6 +863,9 @@ window.addEventListener("load", function() {
                 gl.useProgram(programReflect);
 
                 inicio[0].draw(
+                    gl, shader_locations_reflect, lightPosR, lightDir, viewMatrix, projectionMatrix
+                );
+                inicio[1].draw(
                     gl, shader_locations_reflect, lightPosR, lightDir, viewMatrix, projectionMatrix
                 );
 
