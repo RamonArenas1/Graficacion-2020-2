@@ -65,7 +65,12 @@ let counter_time = 10000;
 
 
 window.addEventListener("load", function() {
+    let canvas = document.getElementById("the_canvas");
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+
     // Image Loader con el arreglo de todas las texturas
+
     ImageLoader.load(
         [
             "./texturas/Puerta.png",
@@ -92,12 +97,12 @@ window.addEventListener("load", function() {
         ],
         function() {
             // se obtiene una referencia al canvas y al contexto de webgl
-            let canvas = document.getElementById("the_canvas");
             const gl = canvas.getContext("webgl");
             if (!gl) throw "WebGL no soportado";
 
             // variable utilizada para generar sonido
             var raze = document.getElementById("ulti");
+            var alpoh = document.getElementById("rolita_chula");
 
             //Referencia al script que representa el shader de vertices con iluminacion con mapa de normal
             let vertexShaderSourceNM = document.getElementById("2d-vertex-shader-nm").text;
@@ -833,8 +838,8 @@ window.addEventListener("load", function() {
                 ),
             ];
             // Se crean tanto la camara principal como la camara de seguirdad secundaria
-            let security_camera = new Camara(new Vector3(5, 9, -85), new Vector3(0, 5, 5), new Vector3(0, 1, 0));
-            let camera = new Camara(new Vector3(0, 5, 20), new Vector3(0, 5, 0), new Vector3(0, 1, 0));
+            let security_camera = new Camara(new Vector3(5, 9, -85), new Vector3(0, 5, 5), new Vector3(0, 1, 0), canvas);
+            let camera = new Camara(new Vector3(0, 5, 20), new Vector3(0, 5, 0), new Vector3(0, 1, 0), canvas);
 
             let skybox = new Skybox(gl, Matrix4.multiply(Matrix4.scale(new Vector3(500, 500, 500)), Matrix4.rotateX(90)));
 
@@ -1059,7 +1064,9 @@ window.addEventListener("load", function() {
                         }
                     case 88:
                         {
+                            alpoh.pause()
                             raze.play();
+                            alpoh.play()
                         }
                     case 65:
                         {
@@ -1072,7 +1079,7 @@ window.addEventListener("load", function() {
                         {
                             if (actual_camera) {
                                 ///Poniendo un estado a la camara
-                                camera.setPos(new Vector3(0, 5, 2));
+                                camera.setPos(new Vector3(0, 5, 20));
                                 camera.setCOI(new Vector3(0, 5, -11));
                                 camera.front = new Vector3(0, 0, -1);
                                 camera.yaw = -90;
@@ -1131,14 +1138,6 @@ window.addEventListener("load", function() {
                 if (!pause_mov) {
                     camera.moveCamera(offsetx, offsety);
                 }
-
-                var coor = "Coordinates: (" + posx + "," + posy + ")";
-                document.getElementById("demo").innerHTML = coor;
-            }
-
-
-            canvas.onmouseout = function(ev) {
-                document.getElementById("demo").innerHTML = "";
             }
 
             function camera_tour(fase) {
@@ -1151,8 +1150,8 @@ window.addEventListener("load", function() {
                         }
                     case 2:
                         {
-                            camera.moveCamera(.4, 0);
-                            degrees_count += .4;
+                            camera.moveCamera(1, 0);
+                            degrees_count += 1;
                             break;
                         }
                     case 0:

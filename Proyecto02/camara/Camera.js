@@ -12,7 +12,7 @@ export default class Camera {
      * @param {Vector3} coi es el centro de interés hacía donde observa la cámara
      * @param {Vector3} up es el vector hacia arriba
      */
-    constructor(pos, coi, up) {
+    constructor(pos, coi, up, canvas) {
         this.setPos(pos);
         this.setCOI(coi);
         this.setUp(up);
@@ -25,8 +25,8 @@ export default class Camera {
         this.speed = 1;
 
         //variables para movimiento de la camara
-        this.lastx = 400;
-        this.lasty = 400;
+        this.lastx = canvas.width/2;
+        this.lasty = canvas.height/2;
 
         this.yaw = -90;
         this.pitch = 0;
@@ -75,6 +75,11 @@ export default class Camera {
     }
 
 
+    /**
+     * Función permite mover la camara recaculando todos los vectores involucrados para
+     * su correcto funcionamiento
+     * @param String direction, identificador de hacia donde es el movimiento
+     */
     move(direction) {
 
         let movement;
@@ -112,10 +117,14 @@ export default class Camera {
                 }
         }
 
-        if (!(new_pos.x > 6.5 || new_pos.x < -6.5 || new_pos.z > 21 || new_pos.z < -110)) {
-
+        if (!(new_pos.x > 6.5 || new_pos.x < -6.5 || new_pos.z > 21 || new_pos.z < -90)) {
             this.setPos(new_pos);
             this.setCOI(new_coi);
+        }else if ( Math.abs(new_pos.z - 0) < 1 || Math.abs(new_pos.z - (-20)) < 1 || Math.abs(new_pos.z - (-40)) < 1 || Math.abs(new_pos.z - (-60))< 1 || Math.abs(new_pos.z - (-80)) < 1 ) {
+            if (!(new_pos.x > 8.5 || new_pos.x < -8.5)) {
+                this.setPos(new_pos);
+                this.setCOI(new_coi);
+            }
         }
 
     }
@@ -135,11 +144,11 @@ export default class Camera {
         this.setCOI(new_coi);
     }
 
-    /*
-     * Usamos la función de html onmousemove, para obtener la posición del ratón en 
-     * la pantalla y poder sacar hacia donde se mueve el ratón.
-     * 
-     * Recordamos que se inició las variables de lastx y lasty en el centro del canvas
+    /**
+     * Función permite mover el coi de la camara todos los vectores involucrados para
+     * su correcto funcionamiento
+     * @param number offsetx, indica la diferencia de x entre esta y una llamada anterior
+     * @param number offsetx, indica la diferencia de y entre esta y una llamada anterior
      */
     moveCamera(offsetx, offsety) {
 
