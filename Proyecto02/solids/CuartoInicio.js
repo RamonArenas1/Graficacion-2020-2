@@ -3,7 +3,7 @@ import Vector3 from "../maths_CG/Vector3.js";
 import Matrix4 from "../maths_CG/Matrix4.js";
 import Vector4 from "../maths_CG/Vector4.js";
 
-export default class ParedAlta {
+export default class CuartoInicio {
     /**
      * @param {WebGLRenderingContext} gl
      * @param {Matrix4} initial_transform
@@ -37,9 +37,9 @@ export default class ParedAlta {
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.vertices), gl.STATIC_DRAW);
 
         this.texture = gl.createTexture();
-        gl.activeTexture(gl.TEXTURE4);
+        gl.activeTexture(gl.TEXTURE7);
         gl.bindTexture(gl.TEXTURE_2D, this.texture);
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, ImageLoader.getImage("./texturas/Cuarto.png"));
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, ImageLoader.getImage("./texturas/CuartoDentro.jpg"));
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
@@ -64,12 +64,11 @@ export default class ParedAlta {
      * @param {Matrix4} viewMatrix
      * @param {Matrix4} projectionMatrix
      */
-    draw(gl, shader_locations, lightPos, viewMatrix, projectionMatrix) {
-        //gl.useProgram(this.program);
+    draw(gl, shader_locations, lightPos, lightDir, viewMatrix, projectionMatrix) {
 
         //gl.bindTexture(gl.TEXTURE_2D, this.texture);
 
-        gl.uniform1i(shader_locations.u_texture, 4);
+        gl.uniform1i(shader_locations.u_texture, 7);
 
         gl.enableVertexAttribArray(shader_locations.positionAttribute);
         gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
@@ -86,14 +85,17 @@ export default class ParedAlta {
         let viewModelMatrix = Matrix4.multiply(viewMatrix, this.initial_transform);
         gl.uniformMatrix4fv(shader_locations.VM_matrix, false, viewModelMatrix.toArray());
 
-        //let lightPosView = viewMatrix.multiplyVector(new Vector4(lightPos[0], lightPos[1], lightPos[2], lightPos[3]));
-        //gl.uniform3f(shader_locations.lightPosition, lightPosView.x, lightPosView.y, lightPosView.z);
+        let lightPosView = viewMatrix.multiplyVector(new Vector4(lightPos[0], lightPos[1], lightPos[2], lightPos[3]));
+        gl.uniform3f(shader_locations.lightPosition, lightPosView.x, lightPosView.y, lightPosView.z);
 
-        for (let i = 0; i < lightPos.length; i++) {
+        let lightDirView = viewMatrix.multiplyVector(new Vector4(lightDir[0], lightDir[1], lightDir[2], lightDir[3]));
+        gl.uniform3f(shader_locations.lightDirection, lightDirView.x, lightDirView.y, lightDirView.z);
+
+        /* for (let i = 0; i < lightPos.length; i++) {
             let lightPosView = viewMatrix.multiplyVector(new Vector4(lightPos[i][0], lightPos[i][1], lightPos[i][2], lightPos[i][3]));
             gl.uniform3f(shader_locations.lightPosition[i], lightPosView.x, lightPosView.y, lightPosView.z);
             //gl.uniform3fv(shader_locations.lightPosition[i], [lightPos[i][0], lightPos[i][1], lightPos[i][2]]);
-        }
+        } */
 
         let projectionViewModelMatrix = Matrix4.multiply(projectionMatrix, viewModelMatrix);
         gl.uniformMatrix4fv(shader_locations.PVM_matrix, false, projectionViewModelMatrix.toArray());
@@ -102,20 +104,33 @@ export default class ParedAlta {
     }
 
 
+
     getVertices() {
         return [ //
-            -0.000000, 1.000000, 2.000000, //
-            0.000000, -1.000000, 2.000000, //
-            -0.000000, 1.000000, -2.000000, //
-            0.000000, -1.000000, -2.000000,
+            10.000002, -5.000000, 9.204542,
+            10.000002, 5.000000, 9.204542, //
+            -9.999999, -5.000000, 9.204548, //
+            -9.999999, 5.000000, 9.204548,
+            9.999999, -5.000000, -10.795458,
+            9.999999, 5.000000, -10.795458, //
+            -10.000001, -5.000000, -10.795452, //
+            -10.000001, 5.000000, -10.795452,
         ]
     }
 
     getFaces() {
         return [
-            1, 4, 3,
-            1, 2, 4,
-        ]
+            2, 3, 1, //
+            4, 7, 3,
+            6, 1, 5,
+            7, 1, 3,
+            8, 2, 6,
+            2, 4, 3,
+            4, 8, 7,
+            6, 2, 1,
+            7, 5, 1,
+            8, 4, 2,
+        ];
     }
 
     getNormals(vertices) {
@@ -131,7 +146,7 @@ export default class ParedAlta {
             v3 = new Vector3(vertices[i + 6], vertices[i + 7], vertices[i + 8]);
 
             n = Vector3.cross(
-                Vector3.subtract(v1, v2),
+                Vector3.subtract(v2, v1),
                 Vector3.subtract(v2, v3)
             ).normalize();
 
@@ -213,5 +228,4 @@ export default class ParedAlta {
 
         return uv;
     }
-
 }

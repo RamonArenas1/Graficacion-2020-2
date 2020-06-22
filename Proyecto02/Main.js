@@ -9,12 +9,17 @@ import ImageLoader from "./imageloader/ImageLoader.js";
 import Puerta from "./solids/Puerta.js";
 import Perilla from "./solids/Perilla.js";
 import Cuarto from "./solids/Cuarto.js";
+import CuartoD from "./solids/CuartoD.js";
+import CuartoInicio from "./solids/CuartoInicio.js";
 import Marco from "./solids/Marco.js";
 import ParedBaja from "./solids/ParedBaja.js";
 import Pared from "./solids/Pared.js";
 import ParedAlta from "./solids/ParedAlta.js";
+
 import Piso from "./solids/Piso.js";
+
 import Foco from "./solids/Foco.js";
+
 import Skybox from "./solids/Skybox.js";
 
 /**
@@ -43,6 +48,7 @@ window.addEventListener("load", function() {
             "./texturas/Perilla.jpg",
             "./texturas/Pared Baja.png",
             "./texturas/Cuarto.png",
+            "./texturas/CuartoDentro.jpg",
             "./texturas/Piso_normal.jpg",
             "./texturas/Piso.jpg",
             "./texturas/skybox.png",
@@ -77,10 +83,20 @@ window.addEventListener("load", function() {
             let fragmentShaderSourceSpec = document.getElementById("2d-fragment-shader-spec").text;
             let fragmentShaderSpec = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSourceSpec);
 
+            //Referencia al script que representa el shader de vertices con iluminacion especular
+            let vertexShaderSourceReflect = document.getElementById("2d-vertex-shader-reflect").text;
+            let vertexShaderReflect = createShader(gl, gl.VERTEX_SHADER, vertexShaderSourceReflect);
+
+            //Referencia al script que representa el shader de fragmentos con iluminacion especular
+            let fragmentShaderSourceReflect = document.getElementById("2d-fragment-shader-reflect").text;
+            let fragmentShaderReflect = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSourceReflect);
+
             // se crea el programa que se enviara a la tarjeta de video, el cual está compuesto por los dos shader que se crearon anteriormente
             let programNM = createProgram(gl, vertexShaderNM, fragmentShaderNM);
             let program = createProgram(gl, vertexShader, fragmentShader);
             let programSpec = createProgram(gl, vertexShaderSpec, fragmentShaderSpec);
+            let programReflect = createProgram(gl, vertexShaderReflect, fragmentShaderReflect);
+
 
             // Se limpia la pantalla con un color negro transparente y se activa l buffer de profundidad
             gl.clearColor(0, 0, 0, 0);
@@ -102,7 +118,8 @@ window.addEventListener("load", function() {
                 // la textura de normales
                 u_texture_normal: gl.getUniformLocation(programNM, "u_texture_normal"),
 
-                lightPosition: gl.getUniformLocation(programNM, "u_light_position"), //
+                // para poder enviar información a un arreglo, es necesario tener referencias a cada entrada del arreglo, consideren que en GLSL los arreglos tienen dimensiones fijas no como en JavaScript
+                lightPosition: gl.getUniformLocation(programNM, "u_light_position"),
 
                 // la posición de la cámara
                 //u_camera_position: gl.getUniformLocation(programNM, "u_camera_position"),
@@ -122,6 +139,11 @@ window.addEventListener("load", function() {
                 texcoordAttribute: gl.getAttribLocation(program, "a_texcoord"),
 
                 lightPosition: gl.getUniformLocation(program, "u_light_position"),
+                lightPosition: [
+                    gl.getUniformLocation(program, "u_light_position[0]"),
+                    gl.getUniformLocation(program, "u_light_position[1]"),
+                    gl.getUniformLocation(program, "u_light_position[2]")
+                ],
                 PVM_matrix: gl.getUniformLocation(program, "u_PVM_matrix"),
                 VM_matrix: gl.getUniformLocation(program, "u_VM_matrix"),
                 
@@ -140,20 +162,38 @@ window.addEventListener("load", function() {
                 VM_matrix: gl.getUniformLocation(programSpec, "u_VM_matrix")
             }
 
-            // se crean y posicionan los modelos geométricos, uno de cada tipo
+            let shader_locations_reflect = {
+                    positionAttribute: gl.getAttribLocation(programReflect, "a_position"),
+                    colorAttribute: gl.getAttribLocation(programReflect, "a_color"),
+                    normalAttribute: gl.getAttribLocation(programReflect, "a_normal"),
+                    texcoordAttribute: gl.getAttribLocation(programReflect, "a_texcoord"),
+                    u_texture: gl.getUniformLocation(programReflect, "u_texture"),
+
+                    // la posición y la dirección de la luz
+                    lightPosition: gl.getUniformLocation(programReflect, "u_light_position"),
+                    lightDirection: gl.getUniformLocation(programReflect, "u_light_direction"),
+
+                    PVM_matrix: gl.getUniformLocation(programReflect, "u_PVM_matrix"),
+                    VM_matrix: gl.getUniformLocation(programReflect, "u_VM_matrix"),
+                }
+                // se crean y posicionan los modelos geométricos, uno de cada tipo
             let entradas = [
                 /******  Cuarto Completo 1 ******/
                 //Puertas
                 new Puerta(
                     gl, Matrix4.translate(new Vector3(-7.5, 3.8132, 0))
                 ),
+
                 //Perillas
                 new Perilla(
                     gl, Matrix4.translate(new Vector3(-7.018, 3.125, -1.2722))
                 ),
                 // entradas
                 new Cuarto(
-                    gl, Matrix4.translate(new Vector3(-17.2553, 5.0071, -0.030099))
+                    gl, Matrix4.translate(new Vector3(-17.3053, 5.0071, -0.030099))
+                ),
+                new CuartoD(
+                    gl, Matrix4.multiply(Matrix4.translate(new Vector3(-17.3053, 5.0071, -0.030099)), Matrix4.rotateY(180))
                 ),
                 // Marcos de Puertas
                 new Marco(
@@ -191,7 +231,10 @@ window.addEventListener("load", function() {
                 ),
                 // entradas
                 new Cuarto(
-                    gl, Matrix4.translate(new Vector3(-17.2553, 5.0071, -20.030099))
+                    gl, Matrix4.translate(new Vector3(-17.3053, 5.0071, -20.030099))
+                ),
+                new CuartoD(
+                    gl, Matrix4.multiply(Matrix4.translate(new Vector3(-17.3053, 5.0071, -20.030099)), Matrix4.rotateY(180))
                 ),
                 // Marcos de Puertas
                 new Marco(
@@ -228,7 +271,10 @@ window.addEventListener("load", function() {
                 ),
                 // entradas
                 new Cuarto(
-                    gl, Matrix4.translate(new Vector3(-17.2553, 5.0071, -40.030099))
+                    gl, Matrix4.translate(new Vector3(-17.3053, 5.0071, -40.030099))
+                ),
+                new CuartoD(
+                    gl, Matrix4.multiply(Matrix4.translate(new Vector3(-17.3053, 5.0071, -40.030099)), Matrix4.rotateY(180))
                 ),
                 // Marcos de Puertas
                 new Marco(
@@ -265,7 +311,10 @@ window.addEventListener("load", function() {
                 ),
                 // entradas
                 new Cuarto(
-                    gl, Matrix4.translate(new Vector3(-17.2553, 5.0071, -60.030099))
+                    gl, Matrix4.translate(new Vector3(-17.3053, 5.0071, -60.030099))
+                ),
+                new CuartoD(
+                    gl, Matrix4.multiply(Matrix4.translate(new Vector3(-17.3053, 5.0071, -60.030099)), Matrix4.rotateY(180))
                 ),
                 // Marcos de Puertas
                 new Marco(
@@ -302,7 +351,10 @@ window.addEventListener("load", function() {
                 ),
                 // entradas
                 new Cuarto(
-                    gl, Matrix4.translate(new Vector3(-17.2553, 5.0071, -80.030099))
+                    gl, Matrix4.translate(new Vector3(-17.3053, 5.0071, -80.030099))
+                ),
+                new CuartoD(
+                    gl, Matrix4.multiply(Matrix4.translate(new Vector3(-17.3053, 5.0071, -80.030099)), Matrix4.rotateY(180))
                 ),
                 // Marcos de Puertas
                 new Marco(
@@ -329,18 +381,22 @@ window.addEventListener("load", function() {
             ];
 
             let entradasInv = [
-                ////******  Cuarto Completo 1 ******////
+                ////******  Cuarto Completo 1 ****** / ///
                 //Puertas
                 new Puerta(
                     gl, Matrix4.multiply(Matrix4.rotateY(180), Matrix4.translate(new Vector3(-7.5, 3.8132, 0)))
                 ),
+
                 //Perillas
                 new Perilla(
                     gl, Matrix4.multiply(Matrix4.rotateY(180), Matrix4.translate(new Vector3(-7.018, 3.125, -1.2722)))
                 ),
                 // entradas
                 new Cuarto(
-                    gl, Matrix4.multiply(Matrix4.rotateY(180), Matrix4.translate(new Vector3(-17.2553, 5.0071, -0.030099)))
+                    gl, Matrix4.multiply(Matrix4.rotateY(180), Matrix4.translate(new Vector3(-17.3053, 5.0071, -0.030099)))
+                ),
+                new CuartoD(
+                    gl, Matrix4.multiply(Matrix4.rotateY(0), Matrix4.translate(new Vector3(17.3053, 5.0071, -0.030099)))
                 ),
                 // Marcos de Puertas
                 new Marco(
@@ -368,17 +424,21 @@ window.addEventListener("load", function() {
 
 
                 //// ******  Cuarto Completo 2 ****** ////
-                // Puertas
+                /// Puertas
                 new Puerta(
                     gl, Matrix4.multiply(Matrix4.rotateY(180), Matrix4.translate(new Vector3(-7.5, 3.8132, 20)))
                 ),
+
                 //Perillas
                 new Perilla(
                     gl, Matrix4.multiply(Matrix4.rotateY(180), Matrix4.translate(new Vector3(-7.018, 3.125, 21.2722)))
                 ),
                 // entradas
                 new Cuarto(
-                    gl, Matrix4.multiply(Matrix4.rotateY(180), Matrix4.translate(new Vector3(-17.2553, 5.0071, 20 - 0.030099)))
+                    gl, Matrix4.multiply(Matrix4.rotateY(180), Matrix4.translate(new Vector3(-17.3053, 5.0071, 20 - 0.030099)))
+                ),
+                new CuartoD(
+                    gl, Matrix4.multiply(Matrix4.rotateY(0), Matrix4.translate(new Vector3(17.3053, 5.0071, -20 - 0.030099)))
                 ),
                 // Marcos de Puertas
                 new Marco(
@@ -409,13 +469,17 @@ window.addEventListener("load", function() {
                 new Puerta(
                     gl, Matrix4.multiply(Matrix4.rotateY(180), Matrix4.translate(new Vector3(-7.5, 3.8132, 40)))
                 ),
+
                 //Perillas
                 new Perilla(
                     gl, Matrix4.multiply(Matrix4.rotateY(180), Matrix4.translate(new Vector3(-7.018, 3.125, 41.2722)))
                 ),
                 // entradas
                 new Cuarto(
-                    gl, Matrix4.multiply(Matrix4.rotateY(180), Matrix4.translate(new Vector3(-17.2553, 5.0071, 40 - 0.030099)))
+                    gl, Matrix4.multiply(Matrix4.rotateY(180), Matrix4.translate(new Vector3(-17.3053, 5.0071, 40 - 0.030099)))
+                ),
+                new CuartoD(
+                    gl, Matrix4.multiply(Matrix4.rotateY(0), Matrix4.translate(new Vector3(17.3053, 5.0071, -40 - 0.030099)))
                 ),
                 // Marcos de Puertas
                 new Marco(
@@ -445,13 +509,17 @@ window.addEventListener("load", function() {
                 new Puerta(
                     gl, Matrix4.multiply(Matrix4.rotateY(180), Matrix4.translate(new Vector3(-7.5, 3.8132, 60)))
                 ),
+
                 //Perillas
                 new Perilla(
                     gl, Matrix4.multiply(Matrix4.rotateY(180), Matrix4.translate(new Vector3(-7.018, 3.125, 61.2722)))
                 ),
                 // entradas
                 new Cuarto(
-                    gl, Matrix4.multiply(Matrix4.rotateY(180), Matrix4.translate(new Vector3(-17.2553, 5.0071, 60 - 0.030099)))
+                    gl, Matrix4.multiply(Matrix4.rotateY(180), Matrix4.translate(new Vector3(-17.3053, 5.0071, 60 - 0.030099)))
+                ),
+                new CuartoD(
+                    gl, Matrix4.multiply(Matrix4.rotateY(0), Matrix4.translate(new Vector3(17.3053, 5.0071, -60 - 0.030099)))
                 ),
                 // Marcos de Puertas
                 new Marco(
@@ -483,13 +551,17 @@ window.addEventListener("load", function() {
                 new Puerta(
                     gl, Matrix4.multiply(Matrix4.rotateY(180), Matrix4.translate(new Vector3(-7.5, 3.8132, 80)))
                 ),
+
                 //Perillas
                 new Perilla(
                     gl, Matrix4.multiply(Matrix4.rotateY(180), Matrix4.translate(new Vector3(-7.018, 3.125, 81.2722)))
                 ),
                 // entradas
                 new Cuarto(
-                    gl, Matrix4.multiply(Matrix4.rotateY(180), Matrix4.translate(new Vector3(-17.2553, 5.0071, 80 - 0.030099)))
+                    gl, Matrix4.multiply(Matrix4.rotateY(180), Matrix4.translate(new Vector3(-17.3053, 5.0071, 80 - 0.030099)))
+                ),
+                new CuartoD(
+                    gl, Matrix4.multiply(Matrix4.rotateY(0), Matrix4.translate(new Vector3(17.3053, 5.0071, -80 - 0.030099)))
                 ),
                 // Marcos de Puertas
                 new Marco(
@@ -521,13 +593,17 @@ window.addEventListener("load", function() {
                 new Puerta(
                     gl, Matrix4.multiply(Matrix4.rotateY(90), Matrix4.translate(new Vector3(-90, 3.8132, 0)))
                 ),
+
                 //Perillas
                 new Perilla(
                     gl, Matrix4.multiply(Matrix4.rotateY(90), Matrix4.translate(new Vector3(-89.5222, 3.125, -1.1)))
                 ),
                 // Cuarto
                 new Cuarto(
-                    gl, Matrix4.multiply(Matrix4.rotateY(90), Matrix4.translate(new Vector3(-100.8 - 0.030099, 5.0071, 0)))
+                    gl, Matrix4.multiply(Matrix4.rotateY(90), Matrix4.translate(new Vector3(-99.8, 5.0071, 0)))
+                ),
+                new CuartoD(
+                    gl, Matrix4.multiply(Matrix4.rotateY(-90), Matrix4.translate(new Vector3(99.8, 5.0071, 0)))
                 ),
                 // Marcos de Puertas
                 new Marco(
@@ -590,24 +666,52 @@ window.addEventListener("load", function() {
                     gl, [0.956862, 0.968627, 0.035294, 1], Matrix4.multiply(Matrix4.translate(new Vector3(0, 9.65, 0)), Matrix4.scale(new Vector3(0.25, 0.25, 0.25)))
                 ),
                 new Foco(
-                    gl, [0.956862, 0.968627, 0.035294, 1], Matrix4.multiply(Matrix4.translate(new Vector3(0, 9.65, -20)), Matrix4.scale(new Vector3(0.25, 0.25, 0.25)))
+                    gl, [0.956862, 0.968627, 0.335294, 1], Matrix4.multiply(Matrix4.translate(new Vector3(0, 9.65, -20)), Matrix4.scale(new Vector3(0.25, 0.25, 0.25)))
                 ),
                 new Foco(
-                    gl, [0.956862, 0.968627, 0.035294, 1], Matrix4.multiply(Matrix4.translate(new Vector3(0, 9.65, -40)), Matrix4.scale(new Vector3(0.25, 0.25, 0.25)))
+                    gl, [0.956862, 0.968627, 0.535294, 1], Matrix4.multiply(Matrix4.translate(new Vector3(0, 9.65, -40)), Matrix4.scale(new Vector3(0.25, 0.25, 0.25)))
                 ),
                 new Foco(
-                    gl, [0.956862, 0.968627, 0.035294, 1], Matrix4.multiply(Matrix4.translate(new Vector3(0, 9.65, -60)), Matrix4.scale(new Vector3(0.25, 0.25, 0.25)))
+                    gl, [0.956862, 0.968627, 0.735294, 1], Matrix4.multiply(Matrix4.translate(new Vector3(0, 9.65, -60)), Matrix4.scale(new Vector3(0.25, 0.25, 0.25)))
                 ),
                 new Foco(
-                    gl, [0.956862, 0.968627, 0.035294, 1], Matrix4.multiply(Matrix4.translate(new Vector3(0, 9.65, -80)), Matrix4.scale(new Vector3(0.25, 0.25, 0.25)))
+                    gl, [0.956862, 0.968627, 0.935294, 1], Matrix4.multiply(Matrix4.translate(new Vector3(0, 9.65, -80)), Matrix4.scale(new Vector3(0.25, 0.25, 0.25)))
                 ),
             ];
+
+            let inicio = [
+                new CuartoInicio(
+                    gl, Matrix4.multiply(Matrix4.rotateY(0), Matrix4.translate(new Vector3(0, 5, 20.7)))
+                ),
+                // Marcos de Puertas
+                new Marco(
+                    gl, Matrix4.multiply(Matrix4.rotateY(-90), Matrix4.translate(new Vector3(-10, 4, 0)))
+                ),
+                // Paredes Bajas
+                new ParedBaja(
+                    gl, Matrix4.multiply(Matrix4.multiply(Matrix4.rotateY(-90), Matrix4.translate(new Vector3(-10, 1.75, -4.75))), Matrix4.scale(new Vector3(1, 1, .675)))
+                ),
+                new ParedBaja(
+                    gl, Matrix4.multiply(Matrix4.multiply(Matrix4.rotateY(-90), Matrix4.translate(new Vector3(-10, 1.75, 4.75))), Matrix4.scale(new Vector3(1, 1, .675)))
+                ),
+                // Paredes Altas
+                new ParedAlta(
+                    gl, Matrix4.multiply(Matrix4.rotateY(-90), Matrix4.translate(new Vector3(-10, 9, 0)))
+                ),
+                // Paredes
+                new Pared(
+                    gl, Matrix4.multiply(Matrix4.multiply(Matrix4.rotateY(-90), Matrix4.translate(new Vector3(-10, 6.8, -4.75))), Matrix4.scale(new Vector3(1, 1, .7125)))
+                ),
+                new Pared(
+                    gl, Matrix4.multiply(Matrix4.multiply(Matrix4.rotateY(-90), Matrix4.translate(new Vector3(-10, 6.8, 4.75))), Matrix4.scale(new Vector3(1, 1, .7125)))
+                ),
+            ]
 
             // Se crean tanto la camara principal como la camara de seguirdad secundaria
             let security_camera = new Camara(new Vector3(5, 9, -85), new Vector3(0, 5, 5), new Vector3(0, 1, 0));
             let camera = new Camara(new Vector3(0, 5, 15), new Vector3(0, 5, 0), new Vector3(0, 1, 0));
-
-            let skybox = new Skybox(gl, Matrix4.multiply(Matrix4.scale(new Vector3(500, 500, 500)), Matrix4.rotateX(180)));
+            
+            let skybox = new Skybox(gl, Matrix4.multiply(Matrix4.scale(new Vector3(500, 500, 500)), Matrix4.rotateX(90)));
 
             // se crea una matriz de cámara (o vista)
             let viewMatrix = camera.getMatrix();
@@ -622,6 +726,15 @@ window.addEventListener("load", function() {
 
             // Se define el arreglo que contiene la posicion de la luz
             let lightPos = [0, 9.5, 0, 1];
+
+            let lightPos1 = [
+                [0, 9, 0, 1],
+                [0, 9, -20, 1],
+                [0, 9, -40, 1],
+            ];
+
+            let lightPosR = [0, 9.5, 20, 1];
+            let lightDir = [0, -9, 25, 1];
             let ambient = [0.5, 0.5, 0.0];
 
             // Se definen las instrucciones para generar la luz en le canvas
@@ -683,27 +796,39 @@ window.addEventListener("load", function() {
 
                 let ambientLigth = gl.createBuffer();
                 gl.bindBuffer(gl.ARRAY_BUFFER, ambientLigth);
-                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(ambient), gl.STATIC_DRAW);
+                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(ambient), gl.STATIC_DRAW); */
 
                 // ciclo que dibujara las figuras almacenadas en el arreglo entradas
                 for (let i = 0; i < entradas.length; i++) {
                     // se dibuja la geometría
                     entradas[i].draw(
-                        gl, shader_locations, lightPos, viewMatrix, projectionMatrix
+                        gl, shader_locations, lightPos1, viewMatrix, projectionMatrix
                     );
                 }
                 for (let i = 0; i < entradasInv.length; i++) {
                     // se dibuja la geometría
                     entradasInv[i].draw(
-                        gl, shader_locations, lightPos, viewMatrix, projectionMatrix
+                        gl, shader_locations, lightPos1, viewMatrix, projectionMatrix
                     );
                 }
                 for (let i = 0; i < salida.length; i++) {
                     // se dibuja la geometría
                     salida[i].draw(
-                        gl, shader_locations, lightPos, viewMatrix, projectionMatrix
+                        gl, shader_locations, lightPos1, viewMatrix, projectionMatrix
                     );
                 }
+                for (let i = 1; i < inicio.length; i++) {
+                    // se dibuja la geometría
+                    inicio[i].draw(
+                        gl, shader_locations, lightPos1, viewMatrix, projectionMatrix
+                    );
+                }
+
+                gl.useProgram(programReflect);
+
+                inicio[0].draw(
+                    gl, shader_locations_reflect, lightPosR, lightDir, viewMatrix, projectionMatrix
+                );
 
                 gl.useProgram(programSpec);
 
