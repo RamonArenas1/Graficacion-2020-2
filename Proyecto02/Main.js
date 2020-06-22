@@ -28,8 +28,17 @@ import Skybox from "./solids/Skybox.js";
 var last_frame = 0.0;
 var delta_time = 0.0;
 
+//Variables para cambiar de camara y de proyeccion
 var actual_camera = true;
 var actual_projection = true;
+
+//Variables para activar la camara tour
+var camera_in_tour = false;
+var fase = 0;
+var degrees_count = 0;
+var first_door = false
+
+var pause_mov = false;
 
 
 window.addEventListener("load", function() {
@@ -45,19 +54,10 @@ window.addEventListener("load", function() {
             "./texturas/skybox.png",
         ],
         function() {
-            // se obtiene una referencia al canvas
+            // se obtiene una referencia al canvas y al contexto de webgl
             let canvas = document.getElementById("the_canvas");
-
-            //canvas.width  = window.innerWidth;
-            //canvas.height = window.innerHeight;
-
-            // se obtiene una referencia al contexto de render de WebGL
             const gl = canvas.getContext("webgl");
-
-            // si el navegador no soporta WebGL la variable gl no está definida
             if (!gl) throw "WebGL no soportado";
-
-            let skybox = new Skybox(gl, Matrix4.multiply(Matrix4.scale(new Vector3(500, 500, 500)), Matrix4.rotateX(90)));
 
             // se obtiene una referencia al elemento con id="2d-vertex-shader" que se encuentra en el archivo index.html
             let vertexShaderSourceNM = document.getElementById("2d-vertex-shader-nm").text;
@@ -97,6 +97,10 @@ window.addEventListener("load", function() {
             let programSpec = createProgram(gl, vertexShaderSpec, fragmentShaderSpec);
             let programReflect = createProgram(gl, vertexShaderReflect, fragmentShaderReflect);
 
+
+            // Se limpia la pantalla con un color negro transparente y se activa l buffer de profundidad
+            gl.clearColor(0, 0, 0, 0);
+            gl.enable(gl.DEPTH_TEST);
 
             // se construye una referencia a los attributos definidos en el shader de iluminacion difusa
             let shader_locationsNM = {
@@ -142,8 +146,8 @@ window.addEventListener("load", function() {
                 ],
                 PVM_matrix: gl.getUniformLocation(program, "u_PVM_matrix"),
                 VM_matrix: gl.getUniformLocation(program, "u_VM_matrix"),
+                
             }
-
             let shader_locations_spec = {
                 positionAttribute: gl.getAttribLocation(programSpec, "a_position"),
                 colorAttribute: gl.getAttribLocation(programSpec, "a_color"),
@@ -703,26 +707,22 @@ window.addEventListener("load", function() {
                 ),
             ]
 
-            // se limpia la pantalla con un color negro transparente
-            gl.clearColor(0, 0, 0, 0);
-
-            // se activa la prueba de profundidad, esto hace que se utilice el buffer de profundidad para determinar que píxeles se dibujan y cuales se descartan
-            gl.enable(gl.DEPTH_TEST);
-
-            let security_camera = new Camara(new Vector3(5, 5, -85), new Vector3(0, 5, 5), new Vector3(0, 1, 0));
-
-            // se define la posición de la cámara (o el observador o el ojo) 
-            let camera = new Camara(new Vector3(0, 5, 25), new Vector3(0, 5, 0), new Vector3(0, 1, 0));
+            // Se crean tanto la camara principal como la camara de seguirdad secundaria
+            let security_camera = new Camara(new Vector3(5, 9, -85), new Vector3(0, 5, 5), new Vector3(0, 1, 0));
+            let camera = new Camara(new Vector3(0, 5, 15), new Vector3(0, 5, 0), new Vector3(0, 1, 0));
+            
+            let skybox = new Skybox(gl, Matrix4.multiply(Matrix4.scale(new Vector3(500, 500, 500)), Matrix4.rotateX(90)));
 
             // se crea una matriz de cámara (o vista)
             let viewMatrix = camera.getMatrix();
 
             // se construye la matriz de proyección en perspectiva
             let projectionPersMatrix = Matrix4.perspective(75 * Math.PI / 180, canvas.width / canvas.height, 1, 2000);
-            let projectionOrtMatrix = Matrix4.ortho(-20, 20, -20, 20, 0, 2000)
+            let projectionOrtMatrix = Matrix4.ortho(-10, 10, -10, 10, 0.1, 2000, canvas.width / canvas.height);
 
+            //let projectionMatrix = projectionOrtMatrix;
             let projectionMatrix = projectionPersMatrix;
-            let projectionMatrix2 = Matrix4.perspective(75 * Math.PI / 180, canvas.width / canvas.height, 1, 2000);
+    
 
             // Se define el arreglo que contiene la posicion de la luz
             let lightPos = [0, 9.5, 0, 1];
@@ -735,48 +735,53 @@ window.addEventListener("load", function() {
 
             let lightPosR = [0, 9.5, 20, 1];
             let lightDir = [0, -9, 25, 1];
-
             let ambient = [0.5, 0.5, 0.0];
-
-            /* let lightPosView = [];
-            let tmp_light_pos; */
 
             // Se definen las instrucciones para generar la luz en le canvas
             let u_ambien_ = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, u_ambien_);
             gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(ambient), gl.STATIC_DRAW);
 
-            // se limpia la pantalla con un color negro transparente
-            gl.clearColor(0, 0, 0, 0);
-
-            // se activa la prueba de profundidad, esto hace que se utilice el buffer de profundidad para determinar que píxeles se dibujan y cuales se descartan
-            gl.enable(gl.DEPTH_TEST);
-
-
-            // se le indica a WebGL que programa debe utilizar
-            // recordando, un programa en este contexto es una pareja compuesta por un shader de vértices y uno de fragmentos
-            //gl.useProgram(program);
-
-            // instruccion que revisa si la checkbox esta activa o no
+            // Función draw
             function draw(current_frame) {
+                
                 gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-
                 gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-
-                let projectionViewMatrix = Matrix4.multiply(projectionMatrix, camera.getMatrix());
-                skybox.draw(gl, projectionViewMatrix);
 
                 delta_time = current_frame - last_frame;
                 last_frame = delta_time;
-
-                //camera.speed = 0.00005* delta_time;
 
                 if (actual_camera) {
                     viewMatrix = camera.getMatrix();
                 } else {
                     viewMatrix = security_camera.getMatrix();
                 }
+
+                let projectionViewMatrix = Matrix4.multiply(projectionMatrix, viewMatrix);
+
+                if(camera_in_tour){
+                    
+                    camera_tour(fase);
+                    console.log(degrees_count);
+                
+                    if (fase == 1){
+                        if( basic_equals(camera.pos.z ,0) || basic_equals(camera.pos.z ,-20) || basic_equals(camera.pos.z ,-40) || basic_equals(camera.pos.z ,-60) || basic_equals(camera.pos.z ,-80)){
+                            degrees_count = 0;
+                            fase = 2;
+                        }
+                    }
+                    if (fase == 2){
+                        let f = (!basic_equals(camera.pos.z ,-80)) && (!basic_equals(camera.pos.z ,0))
+                        if ( basic_equals(degrees_count ,360) && (f || first_door)){
+                            first_door = false;
+                            fase = 1;
+                        } else if (basic_equals(degrees_count ,540)){
+                            fase = 1;
+                        }
+                    }                    
+                }
+
+                skybox.draw(gl, projectionViewMatrix);
 
                 gl.useProgram(programNM);
                 // se genera una instancia del programa del shader
@@ -789,15 +794,9 @@ window.addEventListener("load", function() {
 
                 gl.useProgram(program);
 
-                /**if (actual_projection){
-                    projectionMatrix = projectionPersMatrix;
-                } else {
-                    projectionMatrix = projectionOrtMatrix;
-                }*/
-                /* let ambientLigth = gl.createBuffer();
+                let ambientLigth = gl.createBuffer();
                 gl.bindBuffer(gl.ARRAY_BUFFER, ambientLigth);
                 gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(ambient), gl.STATIC_DRAW); */
-
 
                 // ciclo que dibujara las figuras almacenadas en el arreglo entradas
                 for (let i = 0; i < entradas.length; i++) {
@@ -840,7 +839,13 @@ window.addEventListener("load", function() {
                         gl, shader_locations_spec, [lightPos[0], lightPos[1], newluz, lightPos[3]], viewMatrix, projectionMatrix
                     );
                 }
-
+                //console.log(camera.pos);
+                
+                    if(camera.pos.z == 0 || camera.pos.z == -20 || camera.pos.z == -40 || camera.pos.z == -60 || camera.pos.z == -80){
+                        //console.log("HERE");
+                        //console.log(fase);
+                    }
+                
                 requestAnimationFrame(draw);
             }
 
@@ -854,33 +859,58 @@ window.addEventListener("load", function() {
                 switch (ev.which) {
                     case 87:
                         {
-                            camera.move("front");
+                            if (!pause_mov){
+                                camera.move("front");
+                            }
                             break;
                         }
                     case 83:
                         {
-                            camera.move("back");
+                            if (!pause_mov){
+                                camera.move("back");
+                            }
                             break;
                         }
                     case 68:
                         {
-                            camera.move("right");
+                            if (!pause_mov){
+                                camera.move("right");
+                            }
                             break;
                         }
                     case 65:
                         {
-                            camera.move("left");
+                            if (!pause_mov){
+                                camera.move("left");
+                            }
                             break;
                         }
                     case 71:
                         {
+                            if (actual_camera){
+                                ///Poniendo un estado a la camara
+                                camera.setPos(new Vector3(0, 5, 2));
+                                camera.setCOI(new Vector3(0, 5, -11));
+                                camera.front = new Vector3(0,0,-1);
+                                camera.yaw = -90;
+                                camera.pitch = 0;
 
-                            camera.setPos(new Vector3(0, 5, 15));
+                                pause_mov = !pause_mov;
+
+                                camera_in_tour = !camera_in_tour;
+                                
+                                if (!camera_in_tour){
+                                    fase = 0;
+                                }else{
+                                    fase = 1;
+                                    first_door = true;
+                                }
+                            }
                             break;
                         }
                     case 27:
                         {
-                            camera.pause_mov = !camera.pause_mov;
+                            pause_mov = !pause_mov;
                             break;
                         }
                     case 67:
@@ -891,7 +921,12 @@ window.addEventListener("load", function() {
                         }
                     case 80:
                         {
-                            //actual_projection = !actual_camera;
+                            actual_projection = !actual_projection;
+                            if (actual_projection){
+                                projectionMatrix = projectionPersMatrix;
+                            }else{
+                                projectionMatrix = projectionOrtMatrix;
+                            }
                             break;
                         }
                 }
@@ -901,17 +936,40 @@ window.addEventListener("load", function() {
 
                 let posx = ev.clientX;
                 let posy = canvas.height - ev.clientY;
-                camera.moveCamera(ev, posx, posy);
+                let offsetx = posx - camera.lastx;
+                let offsety = posy - camera.lasty;
 
-                var x = ev.clientX;
-                var y = ev.clientY;
-                var coor = "Coordinates: (" + x + "," + y + ")";
+                if (!pause_mov){
+                    camera.moveCamera(offsetx, offsety);
+                }
+
+                var coor = "Coordinates: (" + posx + "," + posy + ")";
                 document.getElementById("demo").innerHTML = coor;
             }
 
 
             canvas.onmouseout = function(ev) {
                 document.getElementById("demo").innerHTML = "";
+            }
+
+            function camera_tour(fase){
+                
+                switch(fase){
+                    case 1: {
+                        camera.move("front");
+                        break;
+                    }
+                    case 2: {
+                        camera.moveCamera(.4,0);
+                        degrees_count += .4;
+                        break;
+                    }
+                    case 0: {
+                        break;
+                    }
+                    
+                }
+                
             }
 
 
@@ -959,4 +1017,8 @@ function createProgram(gl, vertexShader, fragmentShader) {
 
     console.log(gl.getProgramInfoLog(program));
     gl.deleteProgram(program);
+}
+
+function basic_equals(a,b){
+    return Math.abs(a - b) < .5
 }
