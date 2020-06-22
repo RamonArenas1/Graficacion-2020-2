@@ -30,10 +30,6 @@ export default class Camera {
 
         this.yaw = -90;
         this.pitch = 0;
-
-        //flag para verificar si la camara esta en recorrido automatico
-        this.pause_mov = false
-
     }
 
     /**
@@ -81,42 +77,42 @@ export default class Camera {
 
     move(direction){
 
-        if ( !this.pause_mov){
-            let movement;
-            let new_pos;    
-            let new_coi;    
+        let movement;
+        let new_pos;    
+        let new_coi;    
             
-            switch(direction){
-                case("front"):{
-                    movement = this.front.scalar(this.speed);
-                    new_pos = Vector3.add(this.pos, movement);
-                    new_coi = Vector3.add(movement,this.coi)
-                    break;
-                }
-                case("back"):{
-                    movement = this.front.scalar(this.speed);
-                    new_pos = Vector3.subtract(this.pos, movement);
-                    new_coi = Vector3.subtract(this.coi,movement)
-                    break;
-                }
-                case("right"):{
-                    movement = Vector3.cross(this.front,this.up).scalar(this.speed);
-                    new_pos = Vector3.add(this.pos, movement);
-                    new_coi  =  Vector3.add(movement,this.coi)
-                    break;
-                }
-                case("left"):{
-                    movement = Vector3.cross(this.front,this.up).scalar(this.speed);
-                    new_pos = Vector3.subtract(this.pos, movement);
-                    new_coi = Vector3.subtract(this.coi,movement)
-                    break;
-                }
+        switch(direction){
+            case("front"):{
+                movement = this.front.scalar(this.speed);
+                new_pos = Vector3.add(this.pos, movement);
+                new_coi = Vector3.add(movement,this.coi)
+                break;
             }
-            
+            case("back"):{
+                movement = this.front.scalar(this.speed);
+                new_pos = Vector3.subtract(this.pos, movement);
+                new_coi = Vector3.subtract(this.coi,movement)
+                break;
+            }
+            case("right"):{
+                movement = Vector3.cross(this.front,this.up).scalar(this.speed);
+                new_pos = Vector3.add(this.pos, movement);
+                new_coi  =  Vector3.add(movement,this.coi)
+                break;
+            }
+            case("left"):{
+                movement = Vector3.cross(this.front,this.up).scalar(this.speed);
+                new_pos = Vector3.subtract(this.pos, movement);
+                new_coi = Vector3.subtract(this.coi,movement)
+                break;
+            }
+        }
+        
+        if(!(new_pos.x > 5 || new_pos.x < -5 || new_pos.z > 16 || new_pos.z < -88)){
             this.setPos(new_pos);
             this.setCOI(new_coi);
-
         }
+
     }
 
     /*Función se llama para asignar los valores al vector frontal de la cámara*/
@@ -140,31 +136,28 @@ export default class Camera {
     * 
     * Recordamos que se inició las variables de lastx y lasty en el centro del canvas
     */
-    moveCamera(ev,posx,posy){
-        if( !this.pause_mov){
-            let offsetx = posx - this.lastx;
-            let offsety = posy - this.lasty;
+    moveCamera(offsetx,offsety){
+            
+        this.lastx = offsetx + this.lastx;;
+        this.lasty = offsety + this.lasty;;
+            
+        const sensibilidad = 1; // valor de que tanto queremos que avance el ratón
+        let offsetx2 = sensibilidad * offsetx;
+        let offsety2 = sensibilidad * offsety;
+            
+        this.yaw   += this.speed * offsetx2;
+        this.pitch += this.speed * offsety2; 
 
-            this.lastx = posx;
-            this.lasty = posy;
-            const sensibilidad = 1; // valor de que tanto queremos que avance el ratón
-            offsetx *= sensibilidad;
-            offsety *= sensibilidad;
-            
-            this.yaw   += this.speed * offsetx;
-            this.pitch += this.speed * offsety; 
-            
-            if(this.pitch > 89.0)
-                this.pitch =  89.0;
-            if(this.pitch < -89.0)
-                this.pitch = -89.0;
+        if(this.pitch > 89.0)
+            this.pitch =  89.0;
+        if(this.pitch < -89.0)
+            this.pitch = -89.0;
         
-            /*
-            * Teniendo los nuevos angulos de Euler actualizamos la cámara
-            */
-            this.updateCamera();
-        }
-    };
+        /*
+        * Teniendo los nuevos angulos de Euler actualizamos la cámara
+        */
+        this.updateCamera();
+    }
 
 }
 
