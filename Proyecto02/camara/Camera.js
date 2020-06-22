@@ -113,6 +113,7 @@ export default class Camera {
         }
 
         if (!(new_pos.x > 6.5 || new_pos.x < -6.5 || new_pos.z > 21 || new_pos.z < -110)) {
+
             this.setPos(new_pos);
             this.setCOI(new_coi);
         }

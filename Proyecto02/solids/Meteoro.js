@@ -8,11 +8,14 @@ export default class Meteoro {
      * @param {WebGLRenderingContext} gl
      * @param {Matrix4} initial_transform
      */
-    constructor(gl, initial_transform) {
+    constructor(gl, initial_transform, control_points) {
 
         let matrixAux = new Vector3(0, 0, 0);
 
         this.initial_transform = initial_transform || matrixAux;
+        
+        //Puntos de Control
+        this.control = control_points;
 
         let vertices = this.getVertices();
 
@@ -64,11 +67,13 @@ export default class Meteoro {
      * @param {Matrix4} viewMatrix
      * @param {Matrix4} projectionMatrix
      */
-    draw(gl, shader_locations, lightPos, viewMatrix, projectionMatrix) {
-        //gl.useProgram(this.program);
+    draw(gl, shader_locations, lightPos, viewMatrix, projectionMatrix, t) {
 
-        //gl.bindTexture(gl.TEXTURE_2D, this.texture);
-
+        //Calculamos el punto actual sobre la curva
+        var bezier_point = bezierC3(this.control[0],this.control[1],this.control[2],t);
+        //Transformación que traslada el objeto a el bezier_point
+        let bezier_transform = Matrix4.multiply(Matrix4.translate(bezier_point),this.initial_transform);
+        
         gl.uniform1i(shader_locations.u_texture, 8);
 
         gl.enableVertexAttribArray(shader_locations.positionAttribute);
@@ -84,17 +89,16 @@ export default class Meteoro {
         gl.vertexAttribPointer(shader_locations.normalAttribute, 3, gl.FLOAT, false, 0, 0);
 
         let viewModelMatrix = Matrix4.multiply(viewMatrix, this.initial_transform);
+        viewModelMatrix = Matrix4.multiply(viewModelMatrix, bezier_transform);
         gl.uniformMatrix4fv(shader_locations.VM_matrix, false, viewModelMatrix.toArray());
-
-        //let lightPosView = viewMatrix.multiplyVector(new Vector4(lightPos[0], lightPos[1], lightPos[2], lightPos[3]));
-        //gl.uniform3f(shader_locations.lightPosition, lightPosView.x, lightPosView.y, lightPosView.z);
 
         for (let i = 0; i < lightPos.length; i++) {
             let lightPosView = viewMatrix.multiplyVector(new Vector4(lightPos[i][0], lightPos[i][1], lightPos[i][2], lightPos[i][3]));
             gl.uniform3f(shader_locations.lightPosition[i], lightPosView.x, lightPosView.y, lightPosView.z);
-            //gl.uniform3fv(shader_locations.lightPosition[i], [lightPos[i][0], lightPos[i][1], lightPos[i][2]]);
         }
+
         let projectionViewModelMatrix = Matrix4.multiply(projectionMatrix, viewModelMatrix);
+        projectionViewModelMatrix = Matrix4.multiply(projectionViewModelMatrix, bezier_transform);
         gl.uniformMatrix4fv(shader_locations.PVM_matrix, false, projectionViewModelMatrix.toArray());
 
         gl.drawArrays(gl.TRIANGLES, 0, this.num_elements);
@@ -1648,3 +1652,30 @@ export default class Meteoro {
         return uv;
     }
 }
+
+    /**
+     * Calcula la interpolación lineal entre dos puntos p0 y p1, 
+     * dado t, i.e, lerp(t) = (1-t) * p0 + p1 * t.
+     * @param {Vector3} p0 el primer punto.
+     * @param {Vector3} p1 el segundo punto.
+     * @param {Float} t parámetro de tiempo para determinar la posición entre 
+     *                  los dos puntos. 
+     * @return {Vector3} el punto sobre la línea p0p1.
+     */
+    function lerp(p0,p1,t){
+        return Vector3.add(p0.scalar(1-t), p1.scalar(t));
+    }
+    /**
+     * Calcula el punto sobre la curva Bézier cuadrática definida por los puntos
+     * de control p0,p1 y p2 en función de t.
+     * @param {Vector3} p0 el primer punto de control.
+     * @param {Vector3} p1 el segundo punto de control.
+     * @param {Vector3} p2 el tercer y último punto de control.
+     * @param {Float} t parámetro de tiempo para determinar la posición.
+     * @return {Vector3} el punto sobre la curva.
+     */
+    function bezierC3(p0,p1,p2,t){
+        let l0 = lerp(p0,p1,t);
+        let l1 = lerp(p1,p2,t);
+        return lerp(l0,l1,t);
+    }
