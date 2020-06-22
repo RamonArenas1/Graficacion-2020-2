@@ -38,6 +38,11 @@ var fase = 0;
 var degrees_count = 0;
 var first_door = false
 
+//variables para la apertura de puertas
+var doors_in_move = false;
+var open = -1;
+var doors_count = 0;
+
 var pause_mov = false;
 
 
@@ -179,41 +184,44 @@ window.addEventListener("load", function() {
                 // se crean y posicionan los modelos geométricos, uno de cada tipo
             let entradas = [
                 /******  Cuarto Completo 1 ******/
-                //Puertas
+                //Puertas 0
                 new Puerta(
                     gl, Matrix4.translate(new Vector3(-7.5, 3.8132, 0))
                 ),
 
-                //Perillas
+                //Perillas 1
                 new Perilla(
                     gl, Matrix4.translate(new Vector3(-7.018, 3.125, -1.2722))
                 ),
-                // entradas
+                // entradas 2
                 new Cuarto(
                     gl, Matrix4.translate(new Vector3(-17.3053, 5.0071, -0.030099))
                 ),
+                // 3
                 new CuartoD(
                     gl, Matrix4.multiply(Matrix4.translate(new Vector3(-17.3053, 5.0071, -0.030099)), Matrix4.rotateY(180))
                 ),
-                // Marcos de Puertas
+                // Marcos de Puertas 4
                 new Marco(
                     gl, Matrix4.translate(new Vector3(-7.5, 4, 0))
                 ),
-                // Paredes Bajas
+                // Paredes Bajas 5
                 new ParedBaja(
                     gl, Matrix4.translate(new Vector3(-7.4, 1.75, 6))
                 ),
+                // 6
                 new ParedBaja(
                     gl, Matrix4.translate(new Vector3(-7.4, 1.75, -6))
                 ),
-                // Paredes
+                // Paredes 7
                 new Pared(
                     gl, Matrix4.translate(new Vector3(-7.5, 6.8, 6))
                 ),
+                // 8
                 new Pared(
                     gl, Matrix4.translate(new Vector3(-7.5, 6.8, -6))
                 ),
-                // Paredes Altas
+                // Paredes Altas 9
                 new ParedAlta(
                     gl, Matrix4.translate(new Vector3(-7.5, 9, 0))
                 ),
@@ -221,11 +229,11 @@ window.addEventListener("load", function() {
 
 
                 ///// ******  Cuarto Completo 2 ****** ////
-                //Puertas
+                //Puertas 10 
                 new Puerta(
                     gl, Matrix4.translate(new Vector3(-7.5, 3.8132, -20))
                 ),
-                //Perillas
+                //Perillas 11 
                 new Perilla(
                     gl, Matrix4.translate(new Vector3(-7.018, 3.125, -21.2722))
                 ),
@@ -781,6 +789,15 @@ window.addEventListener("load", function() {
                     }                    
                 }
 
+                if(doors_in_move){
+                    open_doors();
+                    if(basic_equals(doors_count,90)){
+                        doors_count = 0;
+                        open *= (-1);
+                        doors_in_move = false;
+                    }
+                }
+
                 skybox.draw(gl, projectionViewMatrix);
 
                 gl.useProgram(programNM);
@@ -796,7 +813,7 @@ window.addEventListener("load", function() {
 
                 let ambientLigth = gl.createBuffer();
                 gl.bindBuffer(gl.ARRAY_BUFFER, ambientLigth);
-                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(ambient), gl.STATIC_DRAW); */
+                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(ambient), gl.STATIC_DRAW);
 
                 // ciclo que dibujara las figuras almacenadas en el arreglo entradas
                 for (let i = 0; i < entradas.length; i++) {
@@ -839,12 +856,6 @@ window.addEventListener("load", function() {
                         gl, shader_locations_spec, [lightPos[0], lightPos[1], newluz, lightPos[3]], viewMatrix, projectionMatrix
                     );
                 }
-                //console.log(camera.pos);
-                
-                    if(camera.pos.z == 0 || camera.pos.z == -20 || camera.pos.z == -40 || camera.pos.z == -60 || camera.pos.z == -80){
-                        //console.log("HERE");
-                        //console.log(fase);
-                    }
                 
                 requestAnimationFrame(draw);
             }
@@ -929,6 +940,11 @@ window.addEventListener("load", function() {
                             }
                             break;
                         }
+                    case 79: {
+                        if(!doors_in_move){
+                            doors_in_move = true;
+                        }
+                    }
                 }
             }
 
@@ -970,6 +986,18 @@ window.addEventListener("load", function() {
                     
                 }
                 
+            }
+
+            function open_doors(){
+                let indices = [0,1,10,11,20,21,30,31,40,41]
+                for(let i = 0; i < indices.length; i++){
+                    entradas[indices[i]].open_door(open);
+                    entradasInv[indices[i]].open_door(open);
+                }
+                salida[0].open_door(open);
+                salida[1].open_door(open);
+                doors_count++;
+                console.log(doors_count);
             }
 
 

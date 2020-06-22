@@ -13,6 +13,7 @@ export default class Puerta {
         let matrixAux = new Vector3(0, 0, 0);
 
         this.initial_transform = initial_transform || matrixAux;
+        this.original_transform = this.initial_transform;
 
         let vertices = this.getVertices();
 
@@ -393,6 +394,21 @@ export default class Puerta {
         }
 
         return uv;
+    }
+
+    
+    open_door2(degrees){
+     
+        this.initial_transform = Matrix4.translate(new Vector3(0,5,-1.9));
+    }
+
+    open_door(degrees){
+     
+        let to_origin = Matrix4.translate(new Vector3(0,0,-1.9));
+        let to_back = Matrix4.translate(new Vector3(0,0,1.9));
+        let open_door_transform = Matrix4.multiply(to_back,Matrix4.multiply(Matrix4.rotateY(degrees),to_origin));
+
+        this.initial_transform = Matrix4.multiply(this.initial_transform,open_door_transform);
     }
 
 }
