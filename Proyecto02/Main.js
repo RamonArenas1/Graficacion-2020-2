@@ -94,6 +94,8 @@ window.addEventListener("load", function() {
             const gl = canvas.getContext("webgl");
             if (!gl) throw "WebGL no soportado";
 
+            var raze = document.getElementById("ulti");
+
             // se obtiene una referencia al elemento con id="2d-vertex-shader" que se encuentra en el archivo index.html
             let vertexShaderSourceNM = document.getElementById("2d-vertex-shader-nm").text;
             let vertexShaderNM = createShader(gl, gl.VERTEX_SHADER, vertexShaderSourceNM);
@@ -750,32 +752,32 @@ window.addEventListener("load", function() {
             ];
 
             let meteoro_cp1 = [
-                new Vector3(10,20,5),
-                new Vector3(0,15,-10),
-                new Vector3(-11,10,-15) 
-              ];
+                new Vector3(10, 20, 5),
+                new Vector3(0, 15, -10),
+                new Vector3(-11, 10, -15)
+            ];
 
             let meteoro_cp2 = [
-                new Vector3(-10,20,-20),
-                new Vector3(0,15,-35),
-                new Vector3(11,10,-40) 
-              ];
+                new Vector3(-10, 20, -20),
+                new Vector3(0, 15, -35),
+                new Vector3(11, 10, -40)
+            ];
 
             let meteoro_cp3 = [
-                new Vector3(10,20,-60),
-                new Vector3(0,15,-120),
-                new Vector3(-11,10,-20) 
-              ];
+                new Vector3(10, 20, -60),
+                new Vector3(0, 15, -120),
+                new Vector3(-11, 10, -20)
+            ];
 
             let meteoros = [
                 new Meteoro(
-                    gl, Matrix4.scale(new Vector3(2,2,2)), meteoro_cp1),
-                
+                    gl, Matrix4.scale(new Vector3(2, 2, 2)), meteoro_cp1),
+
                 new Meteoro(
-                    gl, Matrix4.scale(new Vector3(2,2,2)), meteoro_cp2),
-                
+                    gl, Matrix4.scale(new Vector3(2, 2, 2)), meteoro_cp2),
+
                 new Meteoro(
-                    gl, Matrix4.scale(new Vector3(2,2,2)), meteoro_cp3),
+                    gl, Matrix4.scale(new Vector3(2, 2, 2)), meteoro_cp3),
             ];
 
             let images = [
@@ -963,7 +965,7 @@ window.addEventListener("load", function() {
                         gl, shader_locations, lightPos1, viewMatrix, projectionMatrix
                     );
                 }
-              
+
                 for (let i = 0; i < meteoros.length; i++) {
                     meteoros[i].draw(
                         gl, shader_locations, lightPos1, viewMatrix, projectionMatrix, t
@@ -996,10 +998,10 @@ window.addEventListener("load", function() {
                         gl, shader_locations_spec, [lightPos[0], lightPos[1], newluz, lightPos[3]], viewMatrix, projectionMatrix
                     );
                 }
-                
+
                 //Actualizamos t 
                 c = (c + 1) % 1001; // Cálculo con enteros para evitar problemas de precisión con decimales de js 
-                t = c / 500; 
+                t = c / 500;
 
                 requestAnimationFrame(draw);
             }
@@ -1028,6 +1030,10 @@ window.addEventListener("load", function() {
                                 camera.move("right");
                             }
                             break;
+                        }
+                    case 88:
+                        {
+                            raze.play();
                         }
                     case 65:
                         {
