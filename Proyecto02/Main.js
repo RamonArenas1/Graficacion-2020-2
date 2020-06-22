@@ -15,13 +15,14 @@ import Marco from "./solids/Marco.js";
 import ParedBaja from "./solids/ParedBaja.js";
 import Pared from "./solids/Pared.js";
 import ParedAlta from "./solids/ParedAlta.js";
+import Frente from "./solids/Frente.js";
+import Meteoro from "./solids/Meteoro.js";
 
 import Piso from "./solids/Piso.js";
 
 import Foco from "./solids/Foco.js";
 
 import Skybox from "./solids/Skybox.js";
-import Frente from "./solids/Frente.js";
 
 /**
  * Varibales que controlan el tiempo para realizar el render de la escena
@@ -60,6 +61,7 @@ window.addEventListener("load", function() {
             "./texturas/Piso_normal.jpg",
             "./texturas/Piso.jpg",
             "./texturas/skybox.png",
+            "./texturas/Meteoro.png",
         ],
         function() {
             // se obtiene una referencia al canvas y al contexto de webgl
@@ -719,6 +721,10 @@ window.addEventListener("load", function() {
 
             ]
 
+            let meteoro = new Meteoro(
+                gl, Matrix4.translate(new Vector3(0, 7, 0))
+            );
+
             // Se crean tanto la camara principal como la camara de seguirdad secundaria
             let security_camera = new Camara(new Vector3(5, 9, -85), new Vector3(0, 5, 5), new Vector3(0, 1, 0));
             let camera = new Camara(new Vector3(0, 5, 20), new Vector3(0, 5, 0), new Vector3(0, 1, 0));
@@ -830,10 +836,6 @@ window.addEventListener("load", function() {
 
                 gl.useProgram(program);
 
-                /* let ambientLigth = gl.createBuffer();
-                gl.bindBuffer(gl.ARRAY_BUFFER, ambientLigth);
-                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(shader_locations), gl.STATIC_DRAW); */
-
                 // ciclo que dibujara las figuras almacenadas en el arreglo entradas
                 for (let i = 0; i < entradas.length; i++) {
                     // se dibuja la geometría
@@ -859,6 +861,8 @@ window.addEventListener("load", function() {
                         gl, shader_locations, lightPos1, viewMatrix, projectionMatrix
                     );
                 }
+
+                meteoro.draw(gl, shader_locations, lightPos1, viewMatrix, projectionMatrix);
 
                 gl.useProgram(programReflect);
 
