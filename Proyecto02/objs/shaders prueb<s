@@ -32,6 +32,8 @@
   // variable para comunicar las coordenadas de textura entre el shader de vértices y el shader de fragmentos
   varying vec2 v_texcoord;
 
+  uniform vec3 u_ambient;
+
   void main() {
     v_position = vec3( u_VM_matrix * a_position );
     v_normal = vec3( u_VM_matrix * vec4(a_normal, 0) );
@@ -53,6 +55,9 @@
   varying vec3 v_position;
   varying vec4 v_color;
   varying vec3 v_normal;
+
+  // se define la componente de la luz ambiental como un valor constante
+  uniform vec3 u_ambient;
 
   // se define la componente de la luz ambiental como un valor constante
   vec3 ambient = vec3(0.1, 0.1, 0.0);
@@ -107,23 +112,11 @@
 
     /////////////////////SHADERS UNA LUZ///////////////
 
-    <!DOCTYPE html>
-<html>
-
-<head>
-  <meta charset="utf-8" />
-  <title>Page Title</title>
-  <script type="module" src="Main.js"></script>
-</head>
-
-<body>
-  <canvas id="the_canvas" width="978" height="550" style="border: 1px dotted gray; background: #34495E;"></canvas>
-
-  <script id="2d-vertex-shader" type="vertex-shader">
+    <script id="2d-vertex-shader" type="vertex-shader">
   precision mediump float;
 
   attribute vec4 a_position;
-  attribute vec4 a_color;
+  //attribute vec4 a_color;
   attribute vec3 a_normal;
   
   uniform mat4 u_PVM_matrix;
@@ -139,11 +132,13 @@
   // variable para comunicar las coordenadas de textura entre el shader de vértices y el shader de fragmentos
   varying vec2 v_texcoord;
 
+  uniform vec3 u_ambient;
+
   void main() {
     v_position = vec3( u_VM_matrix * a_position );
     v_normal = vec3( u_VM_matrix * vec4(a_normal, 0) );
 
-    v_color = a_color;
+    //v_color = a_color;
 
     gl_Position = u_PVM_matrix * a_position;
 
@@ -161,13 +156,16 @@
   varying vec4 v_color;
   varying vec3 v_normal;
 
+  // se define la componente de la luz ambiental como un valor constante
+  uniform vec3 u_ambient;
+
   // variable donde se reciben las coordenadas de textura de los vértices que forman un polígono
   varying vec2 v_texcoord;
   // objeto que se encarga de obtener la información de color de los píxeles de la imagen
   uniform sampler2D u_texture;
 
   void main() {
-    vec3 to_light = normalize( u_light_position - v_position );
+    vec3 to_light = normalize( u_light_position - v_position);
     vec3 fragment_normal = v_normal;
 
     // los valores de la textura de normales están almacenados como valores rgb, es decir, valores en el intervalo [0,1]; pero los valores códificados son los de vectores normales, los cuales se encuentran en el intervalo [-1,1], por lo que hay que ajustar el intervalo de valores para poder utilizar las normales
@@ -176,7 +174,7 @@
 
     float cos_angle = max(dot(fragment_normal, to_light), 0.0);
 
-    gl_FragColor = vec4(vec3(texture2D(u_texture, v_texcoord)) * cos_angle, 1.0);
+    gl_FragColor = vec4(u_ambient + vec3(texture2D(u_texture, v_texcoord)) * cos_angle, 1.0);
     // la función texture2D se encarga de relacionar el sampler2D u_texture con de las coordenadas uv del polígono
     //gl_FragColor = texture2D(u_texture, v_texcoord);
   }
