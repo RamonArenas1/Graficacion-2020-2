@@ -91,7 +91,7 @@ export default class Piso {
      * @param {Matrix4} viewMatrix
      * @param {Matrix4} projectionMatrix
      */
-    draw(gl, shader_locations, lightPos, viewMatrix, projectionMatrix, camera) {
+    draw(gl, shader_locations, lightPos, viewMatrix, projectionMatrix) {
         //gl.useProgram(this.program);
 
         //gl.bindTexture(gl.TEXTURE_2D, this.texture);
@@ -126,14 +126,15 @@ export default class Piso {
         let projectionViewModelMatrix = Matrix4.multiply(projectionMatrix, viewModelMatrix);
         gl.uniformMatrix4fv(shader_locations.PVM_matrix, false, projectionViewModelMatrix.toArray());
 
-        let lightPosView = viewMatrix.multiplyVector(new Vector4(lightPos[0], lightPos[1], lightPos[2], lightPos[3]));
-        gl.uniform3f(shader_locations.lightPosition, lightPosView.x, lightPosView.y, lightPosView.z);
+        gl.uniform3f(shader_locations.lightPosition, lightPos[0], lightPos[1], lightPos[2]);
 
         /* for (let i = 0; i < lightPos.length; i++) {
             gl.uniform3fv(shader_locations.lightPosition[i], [lightPos[i].x, lightPos[i].y, lightPos[i].z]);
         } */
         // la posición de la cámara
         //gl.uniform3fv(shader_locations.u_camera_position, camera.pos.toArray());
+
+
 
         gl.drawArrays(gl.TRIANGLES, 0, this.num_elements);
     }
@@ -156,29 +157,15 @@ export default class Piso {
 
     getNormals(vertices) {
 
-        let normals = [];
+        return [
+            0, 1, 0,
+            0, 1, 0,
+            0, 1, 0,
 
-        let v1, v2, v3, n;
-
-        for (let i = 0; i < vertices.length; i += 9) {
-
-            v1 = new Vector3(vertices[i], vertices[i + 1], vertices[i + 2]);
-            v2 = new Vector3(vertices[i + 3], vertices[i + 4], vertices[i + 5]);
-            v3 = new Vector3(vertices[i + 6], vertices[i + 7], vertices[i + 8]);
-
-            n = Vector3.cross(
-                Vector3.subtract(v1, v2),
-                Vector3.subtract(v2, v3)
-            ).normalize();
-
-            normals.push(
-                n.x, n.y, n.z,
-                n.x, n.y, n.z,
-                n.x, n.y, n.z
-            );
-        }
-
-        return normals;
+            0, 1, 0,
+            0, 1, 0,
+            0, 1, 0,
+        ]
     }
 
     getUV(vertices) {

@@ -394,14 +394,12 @@ export default class Matrix4 {
      * @param {Number} far
      * @return {Matrix4}
      */
-    static ortho(left, right, bottom, top, near, far) {
-        let m = new Matrix4(
-            (2 / (right - left)), 0                   , 0                  , (-1) * ((right + left) / (right - left)),
-             0                  , (2 / (top - bottom)), 0                  , (-1) * ((top + bottom) / (top - bottom)),
-             0                  , 0                   , (-2 / (far - near)), (-1) * ((far + near) / (far - near)),
-             0                  , 0                   , 0                  , 1);
-
-        return m;
+    static ortho(left, right, bottom, top, near, far, aspect) {
+        let m = new Matrix4 ( 2/((right-left)*aspect) , 0              , 0            , (-1)*((right+left)/(right - left)),
+                            0                         , 2/(top-bottom) , 0            , (-1)*((top+bottom)/(top - bottom)),
+                            0                         , 0              , 2/(near-far) , (-1)*((near+far)/(far - near)),
+                            0                         , 0              , 0            , 1);
+	    return m;
     }
 
     /**

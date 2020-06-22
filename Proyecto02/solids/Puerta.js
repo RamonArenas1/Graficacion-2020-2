@@ -13,6 +13,7 @@ export default class Puerta {
         let matrixAux = new Vector3(0, 0, 0);
 
         this.initial_transform = initial_transform || matrixAux;
+        this.original_transform = this.initial_transform;
 
         let vertices = this.getVertices();
 
@@ -85,12 +86,14 @@ export default class Puerta {
         let viewModelMatrix = Matrix4.multiply(viewMatrix, this.initial_transform);
         gl.uniformMatrix4fv(shader_locations.VM_matrix, false, viewModelMatrix.toArray());
 
-        let lightPosView = viewMatrix.multiplyVector(new Vector4(lightPos[0], lightPos[1], lightPos[2], lightPos[3]));
-        gl.uniform3f(shader_locations.lightPosition, lightPosView.x, lightPosView.y, lightPosView.z);
+        //let lightPosView = viewMatrix.multiplyVector(new Vector4(lightPos[0], lightPos[1], lightPos[2], lightPos[3]));
+        //gl.uniform3f(shader_locations.lightPosition, lightPosView.x, lightPosView.y, lightPosView.z);
 
-        /* for (let i = 0; i < lightPos.length; i++) {
-            gl.uniform3fv(shader_locations.lightPosition[i], [lightPos[i][0], lightPos[i][1], lightPos[i][2]]);
-        } */
+        for (let i = 0; i < lightPos.length; i++) {
+            let lightPosView = viewMatrix.multiplyVector(new Vector4(lightPos[i][0], lightPos[i][1], lightPos[i][2], lightPos[i][3]));
+            gl.uniform3f(shader_locations.lightPosition[i], lightPosView.x, lightPosView.y, lightPosView.z);
+            //gl.uniform3fv(shader_locations.lightPosition[i], [lightPos[i][0], lightPos[i][1], lightPos[i][2]]);
+        }
 
         let projectionViewModelMatrix = Matrix4.multiply(projectionMatrix, viewModelMatrix);
         gl.uniformMatrix4fv(shader_locations.PVM_matrix, false, projectionViewModelMatrix.toArray());
@@ -391,6 +394,21 @@ export default class Puerta {
         }
 
         return uv;
+    }
+
+    
+    open_door2(degrees){
+     
+        this.initial_transform = Matrix4.translate(new Vector3(0,5,-1.9));
+    }
+
+    open_door(degrees){
+     
+        let to_origin = Matrix4.translate(new Vector3(0,0,-1.9));
+        let to_back = Matrix4.translate(new Vector3(0,0,1.9));
+        let open_door_transform = Matrix4.multiply(to_back,Matrix4.multiply(Matrix4.rotateY(degrees),to_origin));
+
+        this.initial_transform = Matrix4.multiply(this.initial_transform,open_door_transform);
     }
 
 }
