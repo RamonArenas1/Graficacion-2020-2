@@ -23,6 +23,7 @@ import Piso from "./solids/Piso.js";
 import Foco from "./solids/Foco.js";
 
 import Skybox from "./solids/Skybox.js";
+import Imagenes from "./solids/Imagenes.js";
 
 /**
  * Varibales que controlan el tiempo para realizar el render de la escena
@@ -74,6 +75,18 @@ window.addEventListener("load", function() {
             "./texturas/Piso.jpg",
             "./texturas/skybox.png",
             "./texturas/Meteoro.png",
+
+            "./texturas/imagen0.png",
+            "./texturas/imagen1.png",
+            "./texturas/imagen2.png",
+            "./texturas/imagen3.png",
+            "./texturas/imagen4.png",
+            "./texturas/imagen5.png",
+            "./texturas/imagen6.png",
+            "./texturas/imagen7.png",
+            "./texturas/imagen8.png",
+            "./texturas/imagen9.png",
+            "./texturas/imagen10.png",
         ],
         function() {
             // se obtiene una referencia al canvas y al contexto de webgl
@@ -765,6 +778,46 @@ window.addEventListener("load", function() {
                     gl, Matrix4.scale(new Vector3(2,2,2)), meteoro_cp3),
             ];
 
+            let images = [
+                // Imagenes Izq
+                new Imagenes(
+                    gl, Matrix4.multiply(Matrix4.rotateY(-90), Matrix4.translate(new Vector3(0, 0, -25))), "./texturas/imagen0.png", gl.activeTexture(gl.TEXTURE9)
+                ),
+                new Imagenes(
+                    gl, Matrix4.multiply(Matrix4.rotateY(-90), Matrix4.translate(new Vector3(20, 0, -25))), "./texturas/imagen1.png", gl.activeTexture(gl.TEXTURE10)
+                ),
+                new Imagenes(
+                    gl, Matrix4.multiply(Matrix4.rotateY(-90), Matrix4.translate(new Vector3(40, 0, -25))), "./texturas/imagen2.png", gl.activeTexture(gl.TEXTURE11)
+                ),
+                new Imagenes(
+                    gl, Matrix4.multiply(Matrix4.rotateY(-90), Matrix4.translate(new Vector3(60, 0, -25))), "./texturas/imagen3.png", gl.activeTexture(gl.TEXTURE12)
+                ),
+                new Imagenes(
+                    gl, Matrix4.multiply(Matrix4.rotateY(-90), Matrix4.translate(new Vector3(80, 0, -25))), "./texturas/imagen4.png", gl.activeTexture(gl.TEXTURE13)
+                ),
+
+                // Imagenes Der
+                new Imagenes(
+                    gl, Matrix4.multiply(Matrix4.rotateY(90), Matrix4.translate(new Vector3(0, 0, -25))), "./texturas/imagen5.png", gl.activeTexture(gl.TEXTURE14)
+                ),
+                new Imagenes(
+                    gl, Matrix4.multiply(Matrix4.rotateY(90), Matrix4.translate(new Vector3(-20, 0, -25))), "./texturas/imagen6.png", gl.activeTexture(gl.TEXTURE15)
+                ),
+                new Imagenes(
+                    gl, Matrix4.multiply(Matrix4.rotateY(90), Matrix4.translate(new Vector3(-40, 0, -25))), "./texturas/imagen7.png", gl.activeTexture(gl.TEXTURE16)
+                ),
+                new Imagenes(
+                    gl, Matrix4.multiply(Matrix4.rotateY(90), Matrix4.translate(new Vector3(-60, 0, -25))), "./texturas/imagen8.png", gl.activeTexture(gl.TEXTURE17)
+                ),
+                new Imagenes(
+                    gl, Matrix4.multiply(Matrix4.rotateY(90), Matrix4.translate(new Vector3(-80, 0, -25))), "./texturas/imagen9.png", gl.activeTexture(gl.TEXTURE18)
+                ),
+
+                // Imagene Final
+                new Imagenes(
+                    gl, Matrix4.multiply(Matrix4.rotateY(0), Matrix4.translate(new Vector3(0, 0, -105))), "./texturas/imagen10.png", gl.activeTexture(gl.TEXTURE19)
+                ),
+            ];
             // Se crean tanto la camara principal como la camara de seguirdad secundaria
             let security_camera = new Camara(new Vector3(5, 9, -85), new Vector3(0, 5, 5), new Vector3(0, 1, 0));
             let camera = new Camara(new Vector3(0, 5, 20), new Vector3(0, 5, 0), new Vector3(0, 1, 0));
@@ -863,9 +916,9 @@ window.addEventListener("load", function() {
                     }
                 }
 
-                if(doors_in_move){
+                if (doors_in_move) {
                     open_doors();
-                    if(basic_equals(doors_count,90)){
+                    if (basic_equals(doors_count, 90)) {
                         doors_count = 0;
                         open *= (-1);
                         doors_in_move = false;
@@ -910,11 +963,20 @@ window.addEventListener("load", function() {
                         gl, shader_locations, lightPos1, viewMatrix, projectionMatrix
                     );
                 }
+              
                 for (let i = 0; i < meteoros.length; i++) {
                     meteoros[i].draw(
                         gl, shader_locations, lightPos1, viewMatrix, projectionMatrix, t
                     );
                 }
+
+                for (let i = 0; i < images.length; i++) {
+                    // se dibuja la geometría
+                    images[i].draw(
+                        gl, shader_locations, lightPos1, viewMatrix, projectionMatrix, i + 9
+                    );
+                }
+
 
                 gl.useProgram(programReflect);
 
@@ -1018,11 +1080,12 @@ window.addEventListener("load", function() {
                             }
                             break;
                         }
-                    case 79: {
-                        if(!doors_in_move){
-                            doors_in_move = true;
+                    case 79:
+                        {
+                            if (!doors_in_move) {
+                                doors_in_move = true;
+                            }
                         }
-                    }
                 }
             }
 
@@ -1069,9 +1132,9 @@ window.addEventListener("load", function() {
 
             }
 
-            function open_doors(){
-                let indices = [0,1,10,11,20,21,30,31,40,41]
-                for(let i = 0; i < indices.length; i++){
+            function open_doors() {
+                let indices = [0, 1, 10, 11, 20, 21, 30, 31, 40, 41]
+                for (let i = 0; i < indices.length; i++) {
                     entradas[indices[i]].open_door(open);
                     entradasInv[indices[i]].open_door(open);
                 }
