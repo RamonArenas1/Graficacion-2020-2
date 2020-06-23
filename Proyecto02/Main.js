@@ -104,6 +104,8 @@ window.addEventListener("load", function() {
             var raze = document.getElementById("ulti");
             var alpoh = document.getElementById("rolita_chula");
 
+            alpoh.volume = .3;
+
             //Referencia al script que representa el shader de vertices con iluminacion con mapa de normal
             let vertexShaderSourceNM = document.getElementById("2d-vertex-shader-nm").text;
             let vertexShaderNM = createShader(gl, gl.VERTEX_SHADER, vertexShaderSourceNM);
@@ -1068,9 +1070,7 @@ window.addEventListener("load", function() {
                     //x
                     case 88:
                         {
-                            alpoh.pause();
                             raze.play();
-                            alpoh.play();
                             break;
                         }
                     //a
@@ -1135,7 +1135,9 @@ window.addEventListener("load", function() {
                             if (!doors_in_move) {
                                 doors_in_move = true;
                             }
+                            break;
                         }
+ 
                 }
             }
 
